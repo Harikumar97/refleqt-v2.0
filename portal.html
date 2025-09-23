@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Intelligence Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Company Header */
+        .company-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .company-details h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .company-tagline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a0aec0;
+            font-size: 13px;
+        }
+
+        /* Business Obsession Score */
+        .obsession-widget {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .obsession-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0aec0;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .obsession-score {
+            font-size: 28px;
+            font-weight: 900;
+            color: #4facfe;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .obsession-level {
+            font-size: 12px;
+            font-weight: 600;
+            color: #68d391;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation */
+        .nav-section {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-group {
+            margin-bottom: 30px;
+            padding: 0 25px;
+        }
+
+        .nav-group-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0aec0;
+            margin-bottom: 15px;
+            font-weight: 600;
+            padding-left: 12px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            margin-bottom: 4px;
+            position: relative;
+            text-align: left;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-btn.active {
+            background: rgba(79, 172, 254, 0.15);
+            color: #4facfe;
+            border-right: 3px solid #4facfe;
+        }
+
+        .nav-btn.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #4facfe;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: auto;
+        }
+
+        .nav-badge.new {
+            background: #10b981;
+        }
+
+        .nav-badge.beta {
+            background: #f59e0b;
+        }
+
+        .nav-status {
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .nav-status.running {
+            color: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .nav-lock {
+            margin-left: auto;
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        .nav-btn.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.locked:hover {
+            transform: none;
+            background: none;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+
+        /* User Section */
+        .user-section {
+            margin-top: auto;
+            padding: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-role {
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        /* Integration Status */
+        .integration-status {
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .status-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .status-indicator {
+            font-size: 8px;
+        }
+
+        .status-indicator.active {
+            color: #48bb78;
+        }
+
+        .status-indicator.syncing {
+            color: #ed8936;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Mobile Toggle */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #4facfe;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        /* Welcome Header */
+        .welcome-header {
+			background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+			color: white;
+			padding: 20px 40px; /* Reduced padding */
+			position: relative;
+			overflow: hidden;
+			height: 80px; /* Fixed height */
+			flex-shrink: 0; /* Prevent shrinking */
+		}
+
+        .welcome-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 100%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="10" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100px) rotate(0deg); }
+            100% { transform: translateX(100px) rotate(360deg); }
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Content Frame */
+        .content-frame {
+			flex: 1;
+			border: none;
+			background: white;
+			position: relative;
+			z-index: 10; /* Higher z-index */
+			margin-top: -20px; /* Slight overlap */
+			border-radius: 20px 20px 0 0; /* Rounded top corners */
+		}
+
+        /* Status Bar */
+        .status-bar {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.info {
+            background: #3b82f6;
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.warning {
+            background: #f59e0b;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        /* Mobile Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .welcome-header {
+                padding: 20px;
+            }
+
+            .status-bar {
+                padding: 12px 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .toast {
+                top: 80px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Sidebar Toggle -->
+    <button class="mobile-toggle" id="mobile-toggle" onclick="toggleSidebar()">☰</button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <!-- Company Header -->
+            <div class="company-header">
+                <div class="company-info">
+                    <div class="company-logo">R</div>
+                    <div class="company-details">
+                        <h2>Refleqt</h2>
+                        <div class="company-tagline">
+                            <span>🧠</span>
+                            <span>Business Intelligence Platform</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Obsession Score -->
+                <div class="obsession-widget">
+                    <div class="obsession-title">Obsession Score</div>
+                    <div class="obsession-score">8.4</div>
+                    <div class="obsession-level">Highly Focused</div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="nav-section">
+                <!-- Core Intelligence Platform -->
+                <div class="nav-group">
+                    <div class="nav-group-title">Intelligence Platform</div>
+                    
+                    <button class="nav-btn active" onclick="loadPage('intelligence-feed')" data-page="intelligence-feed">
+                        <span class="nav-icon">📊</span>
+                        <span>Intelligence Feed</span>
+                        <span class="nav-badge new">3</span>
+                    </button>
+                    
+                    <button class="nav-btn" onclick="loadPage('strategy-cohorts')" data-page="strategy-cohorts">
+                        <span class="nav-icon">🎯</span>
+                        <span>Strategy Cohorts</span>
+                        <span class="nav-status running">●</span>
+                    </button>
+                    
+                    <button class="nav-btn" onclick="loadPage('research-swarms')" data-page="research-swarms">
+                        <span class="nav-icon">🔬</span>
+                        <span>Research Swarms</span>
+                        <span class="nav-badge">12</span>
+                    </button>
+                    
+                    <button class="nav-btn" onclick="loadPage('psychographics')" data-page="psychographics">
+						<span class="nav-icon">🧠</span>
+						<span>Funnel-lytics</span>
+						<span class="nav-badge">4</span>
+					</button>
+                </div>
+
+                <!-- Content Tools -->
+                <div class="nav-group">
+                    <div class="nav-group-title">Content & Growth</div>
+                    
+                    <button class="nav-btn" onclick="loadPage('brewery')" data-page="brewery">
+                        <span class="nav-icon">🍺</span>
+                        <span>The Brewery</span>
+                        <span class="nav-badge new">2</span>
+                    </button>
+                    
+                    <button class="nav-btn locked" onclick="showFeatureUpgrade('expert-writers')">
+                        <span class="nav-icon">✍️</span>
+                        <span>Expert Writers</span>
+                        <span class="nav-lock">🔒</span>
+                    </button>
+                    
+                    <button class="nav-btn locked" onclick="showFeatureUpgrade('pm-dashboard')">
+                        <span class="nav-icon">✅</span>
+                        <span>PM Dashboard</span>
+                        <span class="nav-lock">🔒</span>
+                    </button>
+                </div>
+
+                <!-- Project Management -->
+                <div class="nav-group">
+                    <div class="nav-group-title">Project Management</div>
+                    
+                    <button class="nav-btn" onclick="loadPage('pm-dashboard')" data-page="pm-dashboard">
+                        <span class="nav-icon">📅</span>
+                        <span>Smart Calendar</span>
+                        <span class="nav-badge new">AI</span>
+                    </button>
+                    
+                    <button class="nav-btn locked" onclick="showFeatureUpgrade('task-board')">
+                        <span class="nav-icon">📋</span>
+                        <span>Task Board</span>
+                        <span class="nav-lock">🔒</span>
+                    </button>
+                    
+                    <button class="nav-btn locked" onclick="showFeatureUpgrade('content-pipeline')">
+                        <span class="nav-icon">🔄</span>
+                        <span>Content Pipeline</span>
+                        <span class="nav-lock">🔒</span>
+                    </button>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Settings & Account -->
+                <div class="nav-group">
+                    <div class="nav-group-title">Settings & Account</div>
+                    <button class="nav-btn" onclick="loadPage('integrations')">
+                        <span class="nav-icon">🔗</span>
+                        <span>Integrations</span>
+                    </button>
+                    
+                    <button class="nav-btn" onclick="loadPage('settings')">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Settings</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Section -->
+            <div class="user-section">
+                <div class="user-profile">
+                    <div class="user-avatar">A</div>
+                    <div class="user-info">
+                        <div class="user-name">Alex Chen</div>
+                        <div class="user-role">Founder • TaskFlow</div>
+                    </div>
+                </div>
+
+                <!-- Integration Status -->
+                <div class="integration-status">
+                    <div class="status-title">Platform Status</div>
+                    <div class="status-item">
+                        <span>Research Swarm</span>
+                        <span class="status-indicator active">●</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Strategy Cohort</span>
+                        <span class="status-indicator active">●</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Data Pipeline</span>
+                        <span class="status-indicator syncing">●</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="content">
+            <!-- Welcome Header -->
+            <div class="welcome-header">
+                <div class="welcome-title">Welcome back, Alex 👋</div>
+                <div class="welcome-subtitle">Your TaskFlow intelligence is ready. Let's obsess smart today.</div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loading">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <!-- Main Content Frame -->
+            <iframe 
+                id="content-frame" 
+                class="content-frame" 
+                src="pages/intelligence-feed.html"
+                onload="hideLoading()"
+            ></iframe>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Live Intelligence Active</span>
+                </div>
+                <div class="status-indicator">
+                    <span id="current-page">Intelligence Feed</span>
+                </div>
+                <div class="status-indicator" style="margin-left: auto;">
+                    <span>Last Updated: Just now</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Global event bus for cross-product communication
+        window.RefleqtEventBus = {
+            events: {},
+            
+            on(event, callback) {
+                if (!this.events[event]) {
+                    this.events[event] = [];
+                }
+                this.events[event].push(callback);
+            },
+            
+            emit(event, data) {
+                if (this.events[event]) {
+                    this.events[event].forEach(callback => callback(data));
+                }
+                
+                // Also send to iframe if it exists
+                const iframe = document.getElementById('content-frame');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'refleqt-event',
+                        event: event,
+                        data: data
+                    }, '*');
+                }
+            },
+            
+            off(event, callback) {
+                if (this.events[event]) {
+                    this.events[event] = this.events[event].filter(cb => cb !== callback);
+                }
+            }
+        };
+
+        // Enhanced notification system
+        const NotificationSystem = {
+            queue: [],
+            isShowing: false,
+            
+            show(message, type = 'info', duration = 3000) {
+                this.queue.push({ message, type, duration });
+                if (!this.isShowing) {
+                    this.processQueue();
+                }
+            },
+            
+            processQueue() {
+                if (this.queue.length === 0) {
+                    this.isShowing = false;
+                    return;
+                }
+                
+                this.isShowing = true;
+                const notification = this.queue.shift();
+                
+                const toast = document.getElementById('toast');
+                toast.textContent = notification.message;
+                toast.className = `toast show ${notification.type}`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        this.processQueue();
+                    }, 300);
+                }, notification.duration);
+            }
+        };
+
+        // Page navigation
+        function loadPage(page) {
+            showLoading();
+            
+            // Update iframe source
+            const contentFrame = document.getElementById('content-frame');
+            switch (page) {
+                case 'intelligence-feed':
+                    contentFrame.src = 'pages/intelligence-feed.html';
+                    break;
+                case 'strategy-cohorts':
+                    contentFrame.src = 'pages/strategy-cohorts.html';
+                    break;
+                case 'research-swarms':
+                    contentFrame.src = 'pages/research-swarms.html';
+                    break;
+                case 'psychographics':
+                    contentFrame.src = 'pages/psychographics.html';
+                    break;
+                case 'brewery':
+                    contentFrame.src = 'pages/brewery.html';
+                    break;
+                case 'pm-dashboard':
+                    contentFrame.src = 'pages/pm-dashboard.html';
+                    break;
+            }
+            
+            // Update active navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`[data-page="${page}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Update status bar
+            const pageNames = {
+				'intelligence-feed': 'Intelligence Feed',
+				'research-swarms': 'Research Swarms',
+				'strategy-cohorts': 'Strategy Cohorts',
+				'psychographics': 'Funnel-lytics',
+				'brewery': 'The Brewery',
+				'expert-writers': 'Expert Writers',
+				'pm-dashboard': 'PM Dashboard',
+                'task-board': 'Task Board',
+                'content-pipeline': 'Content Pipeline',
+				'settings': 'Settings',
+				'integrations': 'Integrations'
+			};
+            
+            document.getElementById('current-page').textContent = pageNames[page] || page;
+            
+            // Track page analytics
+            trackPageView(page);
+            
+            // Show toast notification
+            showToast(`Navigated to ${pageNames[page]}`);
+            
+            // Close mobile sidebar
+            closeMobileSidebar();
+        }
+
+        function trackPageView(page) {
+            // Analytics tracking
+            console.log('Page viewed:', page);
+            
+            // Send usage analytics
+            // Example: analytics.track('page_view', { page: page, timestamp: Date.now() });
+        }
+
+        // Loading state management
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        // Close sidebar when clicking overlay
+        document.getElementById('sidebar-overlay').addEventListener('click', closeMobileSidebar);
+
+        // Enhanced showToast function
+        function showToast(message, type = 'info') {
+            NotificationSystem.show(message, type);
+        }
+
+        // Feature upgrade handling
+        function showFeatureUpgrade(feature) {
+            const featureNames = {
+                'funnel-lytics': 'Funnel-lytics',
+                'brewery': 'The Brewery', 
+                'expert-writers': 'Expert Writers',
+                'pm-dashboard': 'PM Dashboard',
+                'task-board': 'Task Board',
+                'content-pipeline': 'Content Pipeline'
+            };
+            
+            showToast(`${featureNames[feature]} available in Pro plan`, 'warning');
+        }
+
+        // Listen for messages from iframe (for advanced integration)
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'refleqt-event') {
+                window.RefleqtEventBus.emit(event.data.event, event.data.data);
+            }
+            
+            // Handle navigation requests from within pages
+            if (event.data.type === 'navigation') {
+                loadPage(event.data.page);
+            }
+            
+            // Handle feature unlock notifications
+            if (event.data.type === 'feature-unlocked') {
+                showToast(`🎉 New feature unlocked: ${event.data.feature}`, 'success');
+            }
+
+            // Handle analysis completion
+            if (event.data.type === 'load-analysis') {
+                // Load specific analysis in Strategy Cohorts
+                loadPage('strategy-cohorts');
+            }
+        });
+
+        // Event handlers for cross-product integration
+        window.RefleqtEventBus.on('analysis_completed', function(data) {
+            console.log('Analysis completed:', data);
+            showToast(`✅ ${data.analysisType} completed with ${data.confidence}% confidence`, 'success');
+            
+            // Update sidebar badge
+            const badge = document.querySelector('.nav-btn[data-page="strategy-cohorts"] .nav-badge');
+            if (badge) {
+                badge.textContent = parseInt(badge.textContent || '0') + 1;
+            }
+        });
+
+        window.RefleqtEventBus.on('swarm_activated', function(data) {
+            console.log('Research swarm activated:', data);
+            showToast(`🔬 Research swarm activated for ${data.competitors.length} competitors`, 'info');
+            
+            // Update swarm status in sidebar
+            const swarmStatus = document.querySelector('.status-item:nth-child(1) .status-indicator');
+            if (swarmStatus) {
+                swarmStatus.className = 'status-indicator active';
+            }
+        });
+
+        window.RefleqtEventBus.on('export_generated', function(data) {
+            console.log('Export generated:', data);
+            showToast(`📄 ${data.format} export ready for download`, 'success');
+        });
+
+        window.RefleqtEventBus.on('export_requested', function(data) {
+            console.log('Export requested:', data);
+            showToast(`📄 Generating ${data.format.toUpperCase()} export...`, 'info');
+        });
+		
+		// Funnel-lytics specific event handlers
+		window.RefleqtEventBus.on('behavioral_insights_ready', function(data) {
+			console.log('Behavioral insights received:', data);
+			showToast(`📊 Behavioral analysis complete: ${data.segments.length} segments identified`, 'success');
+			
+			// Update navigation badge
+			const badge = document.querySelector('.nav-btn[data-page="psychographics"] .nav-badge');
+			if (badge) {
+				badge.textContent = 'NEW';
+				badge.classList.add('new');
+			}
+		});
+
+		window.RefleqtEventBus.on('campaign_created', function(data) {
+			console.log('Campaign created from psychographics:', data);
+			showToast(`🎯 ${data.campaignName} created successfully`, 'success');
+		});
+
+		window.RefleqtEventBus.on('segment_exported', function(data) {
+			console.log('Segment exported:', data);
+			showToast(`📄 ${data.segmentName} segment exported successfully`, 'success');
+		});
+
+		window.RefleqtEventBus.on('behavioral_alert', function(data) {
+			console.log('Behavioral alert:', data);
+			showToast(`🚨 ${data.message}`, 'warning');
+			
+			// Flash the psychographics nav item
+			const psychNav = document.querySelector('.nav-btn[data-page="psychographics"]');
+			if (psychNav) {
+				psychNav.style.animation = 'pulse 2s';
+			}
+		});
+		
+        // Handle mobile responsiveness
+        function handleResize() {
+            if (window.innerWidth <= 768) {
+                document.querySelector('.mobile-toggle').style.display = 'block';
+            } else {
+                document.querySelector('.mobile-toggle').style.display = 'none';
+                closeMobileSidebar();
+            }
+        }
+
+        // Initialize
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('load', () => {
+            handleResize();
+            hideLoading();
+            
+            // Welcome message for new portal users
+            setTimeout(() => {
+                showToast('Welcome to your Refleqt Intelligence Portal!', 'success');
+            }, 1000);
+        });
+
+        // Handle iframe errors
+        document.getElementById('content-frame').addEventListener('error', function() {
+            console.log('Error loading page');
+            hideLoading();
+            showToast('Error loading page - check if file exists', 'error');
+        });
+
+        // Auto-navigate to intelligence feed on load (portal homepage)
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage('intelligence-feed');
+        });
+
+        // Add some portal-specific initialization
+        window.addEventListener('load', function() {
+            // Check if user came from demo completion
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('demo') === 'complete') {
+                setTimeout(() => {
+                    showToast('🎉 Demo complete! Welcome to your TaskFlow portal', 'success');
+                }, 500);
+                
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>
