@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Setup - Alex Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .demo-container { 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px;
+            padding: 40px; max-width: 600px; width: 100%; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1); text-align: center;
+        }
+        .demo-title { font-size: 28px; font-weight: bold; color: #2d3748; margin-bottom: 16px; }
+        .demo-subtitle { color: #718096; font-size: 16px; margin-bottom: 30px; line-height: 1.6; }
+        .alex-profile { background: #f7fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px; text-align: left; }
+        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .profile-avatar { 
+            width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: white; font-weight: bold;
+        }
+        .profile-info h3 { color: #2d3748; font-size: 20px; margin-bottom: 4px; }
+        .profile-info p { color: #718096; font-size: 14px; }
+        .profile-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .detail-item { background: white; padding: 12px; border-radius: 8px; border-left: 3px solid #667eea; }
+        .detail-label { font-size: 12px; color: #718096; text-transform: uppercase; margin-bottom: 4px; }
+        .detail-value { font-weight: 600; color: #2d3748; }
+        .progress-container { margin-bottom: 30px; }
+        .progress-bar { 
+            width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; 
+            overflow: hidden; margin-bottom: 16px;
+        }
+        .progress-fill { 
+            height: 100%; background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%; transition: width 0.8s ease;
+        }
+        .progress-text { font-size: 14px; color: #718096; }
+        .demo-button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;
+            padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; opacity: 0; transform: translateY(20px);
+        }
+        .demo-button.show { opacity: 1; transform: translateY(0); }
+        .demo-button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
+        .completion-checkmark { 
+            width: 80px; height: 80px; border-radius: 50%; background: #48bb78;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+            opacity: 0; transform: scale(0.5); transition: all 0.5s ease;
+        }
+        .completion-checkmark.show { opacity: 1; transform: scale(1); }
+        .checkmark { color: white; font-size: 32px; }
+        .step-indicator { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+        .step-dot { width: 12px; height: 12px; border-radius: 50%; background: #e2e8f0; transition: all 0.3s ease; }
+        .step-dot.active { background: #667eea; transform: scale(1.2); }
+        .step-dot.completed { background: #48bb78; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-title">🚀 Setting up TaskFlow Intelligence</div>
+        <div class="demo-subtitle">Automatically configuring your personalized business intelligence dashboard</div>
+
+        <div class="alex-profile">
+            <div class="profile-header">
+                <div class="profile-avatar">A</div>
+                <div class="profile-info">
+                    <h3>Alex Chen</h3>
+                    <p>Bootstrap SaaS Founder • TaskFlow</p>
+                </div>
+            </div>
+            <div class="profile-details">
+                <div class="detail-item">
+                    <div class="detail-label">Company</div>
+                    <div class="detail-value">TaskFlow</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Challenge</div>
+                    <div class="detail-value">3% → 8% Conversion</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Competitors</div>
+                    <div class="detail-value">Asana, Monday.com</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Obsession Level</div>
+                    <div class="detail-value">8.2/10</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step-dot" id="step1"></div>
+            <div class="step-dot" id="step2"></div>
+            <div class="step-dot" id="step3"></div>
+            <div class="step-dot" id="step4"></div>
+            <div class="step-dot" id="step5"></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Initializing AI configuration...</span>
+            </div>
+        </div>
+
+        <div class="completion-checkmark" id="checkmark">
+            <div class="checkmark">✓</div>
+        </div>
+
+        <button class="demo-button" id="continueButton" onclick="completeDemo()">
+            🎯 Enter TaskFlow Intelligence Portal
+        </button>
+    </div>
+
+    <script>
+        const demoSteps = [
+            { text: "Analyzing SaaS conversion challenges...", progress: 20, duration: 1500, step: 1 },
+            { text: "Configuring competitor intelligence...", progress: 40, duration: 1800, step: 2 },
+            { text: "Setting up user psychographics...", progress: 60, duration: 1600, step: 3 },
+            { text: "Initializing research swarms...", progress: 80, duration: 1400, step: 4 },
+            { text: "Brewing intelligence reports...", progress: 100, duration: 1200, step: 5 }
+        ];
+
+        let currentStep = 0;
+
+        function runDemoStep(stepIndex) {
+            if (stepIndex >= demoSteps.length) {
+                showCompletion();
+                return;
+            }
+
+            const step = demoSteps[stepIndex];
+            const stepDot = document.getElementById(`step${step.step}`);
+            stepDot.classList.add('active');
+            
+            document.getElementById('progressText').textContent = step.text;
+            setTimeout(() => {
+                document.getElementById('progressFill').style.width = step.progress + '%';
+            }, 500);
+            
+            setTimeout(() => {
+                stepDot.classList.remove('active');
+                stepDot.classList.add('completed');
+                currentStep++;
+                runDemoStep(currentStep);
+            }, step.duration);
+        }
+
+        function showCompletion() {
+            document.querySelector('.progress-container').style.display = 'none';
+            document.querySelector('.step-indicator').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('checkmark').classList.add('show');
+            }, 300);
+            
+            setTimeout(() => {
+                document.querySelector('.demo-subtitle').textContent = 'Your TaskFlow Intelligence Portal is ready!';
+            }, 600);
+            
+            setTimeout(() => {
+                document.getElementById('continueButton').classList.add('show');
+            }, 1000);
+        }
+
+        function completeDemo() {
+            if (window.parent) {
+                window.parent.postMessage({ type: 'demo-complete' }, '*');
+            }
+        }
+
+        window.addEventListener('load', function() {
+            setTimeout(() => { runDemoStep(0); }, 1000);
+        });
+    </script>
+</body>
+</html>

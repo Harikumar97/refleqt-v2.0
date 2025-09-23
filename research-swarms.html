@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Swarms - TaskFlow</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f8f9fa;
+            color: #2d3748;
+        }
+
+        /* Main Content - No Sidebar */
+        .main-content {
+            padding: 30px;
+            width: 100%;
+        }
+
+        .swarms-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swarms-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+            background-size: 20px 20px;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+
+        .swarms-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .swarms-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .swarms-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        /* Swarm Creator */
+        .swarm-creator {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .creator-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .creator-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .swarm-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .swarm-type {
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            background: white;
+        }
+
+        .swarm-type:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .swarm-type.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .swarm-type-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .swarm-type-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #2d3748;
+        }
+
+        .swarm-type-desc {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .suggestions {
+            margin-bottom: 24px;
+        }
+
+        .suggestions-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            padding: 8px 16px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .suggestion-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .launch-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .launch-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .launch-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Active Swarms */
+        .active-swarms {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .active-swarms-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .swarm-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .swarm-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .swarm-query {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .swarm-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.running {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .status-badge.completed {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .status-badge.processing {
+            background: #fbd38d;
+            color: #c05621;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .swarm-stats {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stats-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #2d3748;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+        }
+
+        .swarm-templates {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .template-item {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-item:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+
+        .template-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .template-description {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .research-insights {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .insight-item {
+            padding: 12px;
+            border-left: 4px solid #48bb78;
+            background: #f0fff4;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .insight-text {
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .swarms-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .swarm-types {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [query, setQuery] = useState('');
+            const [selectedSwarmType, setSelectedSwarmType] = useState('competitive');
+            const [activeSwarms, setActiveSwarms] = useState([
+                {
+                    id: 1,
+                    query: "How are my competitors positioning against sustainable packaging trends?",
+                    type: "Competitive Analysis",
+                    status: "completed",
+                    progress: 100,
+                    timeRemaining: null,
+                    results: {
+                        keyFindings: [
+                            "3 major competitors launched eco-friendly packaging lines in Q4 2024",
+                            "Notion increased sustainability messaging by 340% across social channels", 
+                            "Airtable partnered with TerraCycle for office waste management program"
+                        ],
+                        recommendations: [
+                            {
+                                action: "Launch 'Green TaskFlow' sustainability initiative",
+                                impact: "Estimated 25% increase in eco-conscious customer segment",
+                                priority: "High",
+                                timeline: "2-3 months",
+                                effort: "Medium"
+                            },
+                            {
+                                action: "Partner with sustainable tech influencers",
+                                impact: "Reach 150K+ sustainability-focused professionals",
+                                priority: "Medium", 
+                                timeline: "1 month",
+                                effort: "Low"
+                            }
+                        ],
+                        sources: [
+                            "Competitor websites and press releases",
+                            "Social media content analysis",
+                            "Sustainability industry reports",
+                            "Customer review sentiment analysis"
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    query: "What project management features are users requesting most in 2024?",
+                    type: "Market Research",
+                    status: "processing",
+                    progress: 73,
+                    timeRemaining: "2 min"
+                },
+                {
+                    id: 3,
+                    query: "Analyze pricing strategies of top 5 SaaS competitors",
+                    type: "Pricing Analysis", 
+                    status: "running",
+                    progress: 45,
+                    timeRemaining: "4 min"
+                }
+            ]);
+            const [showModal, setShowModal] = useState(false);
+            const [modalContent, setModalContent] = useState(null);
+
+            const swarmTypes = [
+                {
+                    id: 'competitive',
+                    name: 'Competitive Analysis',
+                    icon: '🎯',
+                    description: 'Track competitor moves and strategies'
+                },
+                {
+                    id: 'market',
+                    name: 'Market Research',
+                    icon: '📈',
+                    description: 'Analyze market trends and opportunities'
+                },
+                {
+                    id: 'customer',
+                    name: 'Customer Intelligence',
+                    icon: '👥',
+                    description: 'Understand customer needs and behavior'
+                },
+                {
+                    id: 'product',
+                    name: 'Product Intelligence',
+                    icon: '🔍',
+                    description: 'Research features and innovation trends'
+                }
+            ];
+
+            const suggestionQueries = {
+                competitive: [
+                    "What pricing changes have competitors made recently?",
+                    "Which competitors are hiring for which roles?",
+                    "How are competitors marketing their new features?"
+                ],
+                market: [
+                    "What are the biggest SaaS trends for 2025?",
+                    "Which industries are adopting project management tools fastest?",
+                    "What features do users want most in productivity software?"
+                ],
+                customer: [
+                    "Why are customers churning to competitors?",
+                    "What do reviews say about our vs competitor UX?",
+                    "Which customer segments are growing fastest?"
+                ],
+                product: [
+                    "What AI features are competitors launching?",
+                    "How are productivity tools integrating with other software?",
+                    "What mobile features are becoming table stakes?"
+                ]
+            };
+
+            const launchSwarm = () => {
+                if (!query.trim()) return;
+                
+                const newSwarm = {
+                    id: activeSwarms.length + 1,
+                    query: query,
+                    type: swarmTypes.find(t => t.id === selectedSwarmType)?.name || 'Research',
+                    status: 'running',
+                    progress: 0,
+                    timeRemaining: '5 min'
+                };
+                
+                setActiveSwarms([newSwarm, ...activeSwarms]);
+                setQuery('');
+                
+                // Simulate progress
+                const interval = setInterval(() => {
+                    setActiveSwarms(current => 
+                        current.map(swarm => 
+                            swarm.id === newSwarm.id && swarm.status === 'running'
+                                ? { 
+                                    ...swarm, 
+                                    progress: Math.min(swarm.progress + Math.random() * 15, 100),
+                                    status: swarm.progress >= 95 ? 'completed' : 'running',
+                                    timeRemaining: swarm.progress >= 95 ? null : `${Math.ceil((100 - swarm.progress) / 20)} min`
+                                }
+                                : swarm
+                        )
+                    );
+                }, 2000);
+                
+                setTimeout(() => clearInterval(interval), 30000);
+            };
+
+            const viewSwarmResults = (swarm) => {
+                setModalContent({
+                    title: `Swarm Results: ${swarm.query}`,
+                    swarm: swarm
+                });
+                setShowModal(true);
+            };
+
+            return (
+                <div className="main-content">
+                    <div className="swarms-header">
+                        <h1 className="swarms-title">🔬 Research Swarms</h1>
+                        <p className="swarms-subtitle">
+                            AI-powered multi-agent research system for deep competitive intelligence and market analysis
+                        </p>
+                    </div>
+
+                    <div className="swarms-layout">
+                        <div>
+                            {/* Swarm Creator */}
+                            <div className="swarm-creator">
+                                <div className="creator-header">
+                                    <span style={{ fontSize: '24px' }}>🚀</span>
+                                    <h2 className="creator-title">Launch New Research Swarm</h2>
+                                </div>
+                                
+                                <textarea
+                                    className="query-input"
+                                    placeholder="What would you like the swarm to research? Be specific about your business challenge..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+
+                                <div className="swarm-types">
+                                    {swarmTypes.map(type => (
+                                        <div
+                                            key={type.id}
+                                            className={`swarm-type ${selectedSwarmType === type.id ? 'selected' : ''}`}
+                                            onClick={() => setSelectedSwarmType(type.id)}
+                                        >
+                                            <div className="swarm-type-icon">{type.icon}</div>
+                                            <div className="swarm-type-name">{type.name}</div>
+                                            <div className="swarm-type-desc">{type.description}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {suggestionQueries[selectedSwarmType] && (
+                                    <div className="suggestions">
+                                        <div className="suggestions-title">Popular queries for {swarmTypes.find(t => t.id === selectedSwarmType)?.name}:</div>
+                                        <div className="suggestion-buttons">
+                                            {suggestionQueries[selectedSwarmType].map((suggestion, index) => (
+                                                <button
+                                                    key={index}
+                                                    className="suggestion-btn"
+                                                    onClick={() => setQuery(suggestion)}
+                                                >
+                                                    {suggestion}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button
+                                    className="launch-button"
+                                    onClick={launchSwarm}
+                                    disabled={!query.trim()}
+                                >
+                                    🚀 Launch Swarm ({swarmTypes.find(t => t.id === selectedSwarmType)?.name})
+                                </button>
+                            </div>
+
+                            {/* Active Swarms */}
+                            <div className="active-swarms">
+                                <h2 className="active-swarms-title">
+                                    <span>⚡</span>
+                                    Active Research Swarms
+                                </h2>
+                                
+                                {activeSwarms.map(swarm => (
+                                    <div 
+                                        key={swarm.id} 
+                                        className="swarm-item"
+                                        onClick={() => swarm.status === 'completed' && viewSwarmResults(swarm)}
+                                    >
+                                        <div className="swarm-query">{swarm.query}</div>
+                                        <div className="swarm-status">
+                                            <span className={`status-badge ${swarm.status}`}>
+                                                {swarm.status.charAt(0).toUpperCase() + swarm.status.slice(1)}
+                                            </span>
+                                            <span>{swarm.type}</span>
+                                            {swarm.timeRemaining && <span>⏱ {swarm.timeRemaining} remaining</span>}
+                                            {swarm.status === 'completed' && <span style={{ color: '#667eea', fontWeight: 600 }}>📋 View Results</span>}
+                                        </div>
+                                        {swarm.status !== 'completed' && (
+                                            <div style={{ 
+                                                width: '100%', 
+                                                height: '6px', 
+                                                background: '#f1f5f9', 
+                                                borderRadius: '3px', 
+                                                marginTop: '12px', 
+                                                overflow: 'hidden' 
+                                            }}>
+                                                <div style={{ 
+                                                    width: `${swarm.progress}%`, 
+                                                    height: '100%', 
+                                                    background: '#667eea', 
+                                                    borderRadius: '3px',
+                                                    transition: 'width 0.5s ease'
+                                                }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Control Panel */}
+                        <div className="control-panel">
+                            <div className="swarm-stats">
+                                <h3 className="stats-title">📊 Swarm Performance</h3>
+                                <div className="stats-grid">
+                                    <div className="stat-item">
+                                        <div className="stat-value">47</div>
+                                        <div className="stat-label">Total Swarms</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">3</div>
+                                        <div className="stat-label">Active Now</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">2.3m</div>
+                                        <div className="stat-label">Avg Time</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">94%</div>
+                                        <div className="stat-label">Success Rate</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="swarm-templates">
+                                <h3 className="stats-title">🎯 Quick Templates</h3>
+                                {[
+                                    { title: "Competitor Feature Analysis", desc: "Track new features and updates" },
+                                    { title: "Pricing Intelligence", desc: "Monitor pricing changes and strategies" },
+                                    { title: "Market Trend Research", desc: "Identify emerging market opportunities" },
+                                    { title: "Customer Sentiment Tracking", desc: "Analyze customer feedback and reviews" }
+                                ].map((template, index) => (
+                                    <div key={index} className="template-item" onClick={() => setQuery(`Create a ${template.title.toLowerCase()} for TaskFlow vs main competitors`)}>
+                                        <div className="template-title">{template.title}</div>
+                                        <div className="template-description">{template.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="research-insights">
+                                <h3 className="stats-title">💡 Recent Insights</h3>
+                                <div className="insight-item">
+                                    <div className="insight-text">Competitors increasing AI feature mentions by 340%</div>
+                                </div>
+                                <div className="insight-item">
+                                    <div className="insight-text">Project management market growing 12% annually</div>
+                                </div>
+                                <div className="insight-item">
+                                    <div className="insight-text">Mobile-first features becoming customer requirement</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Results Modal */}
+                    {showModal && modalContent && (
+                        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{modalContent.title}</h2>
+                                    <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+                                </div>
+                                
+                                {modalContent.swarm?.results && (
+                                    <div>
+                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>🔍 Key Findings</h3>
+                                        <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
+                                            {modalContent.swarm.results.keyFindings.map((finding, index) => (
+                                                <li key={index} style={{ marginBottom: '8px', color: '#4a5568' }}>{finding}</li>
+                                            ))}
+                                        </ul>
+
+                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>💡 Strategic Recommendations</h3>
+                                        <div style={{ marginBottom: '24px' }}>
+                                            {modalContent.swarm.results.recommendations.map((rec, index) => (
+                                                <div key={index} style={{ 
+                                                    padding: '16px', 
+                                                    border: '1px solid #e2e8f0', 
+                                                    borderRadius: '8px', 
+                                                    marginBottom: '12px',
+                                                    borderLeft: `4px solid ${rec.priority === 'High' ? '#f56565' : '#ed8936'}`
+                                                }}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
+                                                        <h4 style={{color: '#2d3748', margin: 0}}>{rec.action}</h4>
+                                                        <span style={{
+                                                            background: rec.priority === 'High' ? '#fed7d7' : '#fbd38d',
+                                                            color: rec.priority === 'High' ? '#c53030' : '#c05621',
+                                                            padding: '2px 8px',
+                                                            borderRadius: '12px',
+                                                            fontSize: '12px',
+                                                            fontWeight: '600'
+                                                        }}>
+                                                            {rec.priority}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{fontSize: '14px', color: '#718096', marginBottom: '8px'}}>
+                                                        <strong>Impact:</strong> {rec.impact}
+                                                    </div>
+                                                    <div style={{display: 'flex', gap: '16px', fontSize: '12px', color: '#a0aec0'}}>
+                                                        <span><strong>Timeline:</strong> {rec.timeline}</span>
+                                                        <span><strong>Effort:</strong> {rec.effort}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>📚 Data Sources</h3>
+                                        <ul style={{ paddingLeft: '20px' }}>
+                                            {modalContent.swarm.results.sources.map((source, index) => (
+                                                <li key={index} style={{ marginBottom: '4px', color: '#718096', fontSize: '14px' }}>{source}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

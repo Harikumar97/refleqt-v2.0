@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funnel-lytics - Refleqt</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+        }
+
+        /* Funnel-lytics Builder */
+        .funnellytics-builder {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .builder-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .builder-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .builder-subtitle {
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        /* Data Integration Section */
+        .integration-section {
+            margin-bottom: 30px;
+        }
+
+        .section-label {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #4a5568;
+        }
+
+        .integration-sources {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .source-item.connected {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
+        }
+
+        .source-status {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .source-item.connected .source-status {
+            background: #48bb78;
+            border-color: #48bb78;
+        }
+
+        .source-item.connected .source-status::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* Analysis Options */
+        .analysis-options {
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .option-card {
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .option-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .option-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .option-description {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* Results Section */
+        .analysis-results {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .analysis-results.active {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f7fafc;
+        }
+
+        .results-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .results-meta {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* Export Controls */
+        .export-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 8px 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Behavioral Segments */
+        .segments-section {
+            margin-bottom: 30px;
+        }
+
+        .segments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .segment-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .segment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+
+        .segment-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .segment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .segment-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .segment-tagline {
+            font-size: 14px;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .segment-percentage {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .segment-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+        }
+
+        .segment-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Journey Mapping */
+        .journey-mapping {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .journey-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .journey-stages {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .journey-stage {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .journey-stage:hover {
+            background: #e6f7ff;
+            transform: translateY(-2px);
+        }
+
+        .journey-stage.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stage-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stage-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stage-conversion {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Visualization Section */
+        .visualization-section {
+            margin: 30px 0;
+        }
+
+        .viz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .viz-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .viz-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .viz-btn {
+            padding: 6px 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .viz-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Refinement Section */
+        .refinement-section {
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .refinement-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        /* Side Panel */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #2d3748;
+        }
+
+        /* Processing Modal */
+        .processing-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .processing-modal.active {
+            display: flex;
+        }
+
+        .processing-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-stage {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .processing-description {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* Export Options Modal */
+        .export-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .export-modal.active {
+            display: flex;
+        }
+
+        .export-modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .segments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .journey-stages {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Funnel-lytics Builder -->
+            <div class="funnellytics-builder">
+                <div class="builder-header">
+                    <div class="builder-title">📊 Funnel-lytics</div>
+                </div>
+                <p class="builder-subtitle">Psychographics-as-a-Service: Understand not just what customers do, but why they do it.</p>
+
+                <!-- Data Integration -->
+                <div class="integration-section">
+                    <div class="section-label">Connect Your Data Sources</div>
+                    <div class="integration-sources">
+                        <div class="source-item connected" onclick="toggleSource(this, 'google-analytics')">
+                            <div class="source-status"></div>
+                            <div>
+                                <div class="source-name">Google Analytics</div>
+                                <div style="font-size: 12px; color: #718096;">User behavior tracking</div>
+                            </div>
+                        </div>
+                        <div class="source-item connected" onclick="toggleSource(this, 'mixpanel')">
+                            <div class="source-status"></div>
+                            <div>
+                                <div class="source-name">Mixpanel</div>
+                                <div style="font-size: 12px; color: #718096;">Event tracking & analytics</div>
+                            </div>
+                        </div>
+                        <div class="source-item" onclick="toggleSource(this, 'hotjar')">
+                            <div class="source-status"></div>
+                            <div>
+                                <div class="source-name">Hotjar</div>
+                                <div style="font-size: 12px; color: #718096;">User session recordings</div>
+                            </div>
+                        </div>
+                        <div class="source-item" onclick="toggleSource(this, 'salesforce')">
+                            <div class="source-status"></div>
+                            <div>
+                                <div class="source-name">Salesforce</div>
+                                <div style="font-size: 12px; color: #718096;">Customer data platform</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Options -->
+                <div class="analysis-options">
+                    <div class="section-label">Analysis Type</div>
+                    <div class="options-grid">
+                        <div class="option-card selected" onclick="selectOption(this, 'behavioral-segments')">
+                            <div class="option-icon">🧠</div>
+                            <div class="option-title">Behavioral Segments</div>
+                            <div class="option-description">AI-powered psychographic clustering</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'journey-mapping')">
+                            <div class="option-icon">🗺️</div>
+                            <div class="option-title">Journey Mapping</div>
+                            <div class="option-description">Stage-by-stage behavioral analysis</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'conversion-psychology')">
+                            <div class="option-icon">💡</div>
+                            <div class="option-title">Conversion Psychology</div>
+                            <div class="option-description">Deep-dive into decision triggers</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'competitive-psychographics')">
+                            <div class="option-icon">⚔️</div>
+                            <div class="option-title">Competitive Analysis</div>
+                            <div class="option-description">Compare customer psychology vs competitors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="runPsychographicAnalysis()">🧠 Run Behavioral Analysis</button>
+                    <button class="btn btn-secondary" onclick="saveConfiguration()">💾 Save Configuration</button>
+                    <button class="btn btn-secondary" onclick="loadTemplate()">📋 Load Template</button>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="analysis-results" id="analysisResults">
+                <div class="results-header">
+                    <div>
+                        <div class="results-title">Behavioral Segment Analysis</div>
+                        <div class="results-meta">Analysis completed in 2m 34s • 4 segments identified • 87% confidence</div>
+                    </div>
+                    <div class="export-controls">
+                        <button class="export-btn" onclick="exportAnalysis('psychographic-report')">
+                            📊 Psychographic Report
+                        </button>
+                        <button class="export-btn" onclick="exportAnalysis('segment-data')">
+                            📈 Segment Data
+                        </button>
+                        <button class="export-btn" onclick="exportAnalysis('campaign-ready')">
+                            🎯 Campaign Export
+                        </button>
+                        <button class="export-btn" onclick="showExportOptions()">
+                            ⚙️ More Options
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Behavioral Segments -->
+                <div class="segments-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600;">Identified Behavioral Segments</h3>
+                        <div style="font-size: 14px; color: #718096;">Based on 12,847 user interactions</div>
+                    </div>
+                    
+                    <div class="segments-grid" id="segmentsGrid">
+                        <!-- Segments will be dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Journey Mapping -->
+                <div class="journey-mapping">
+                    <div class="journey-header">
+                        <h3 style="font-size: 18px; font-weight: 600;">Customer Journey Analysis</h3>
+                        <div style="font-size: 14px; color: #718096;">Select segment to view journey</div>
+                    </div>
+                    
+                    <div class="journey-stages">
+                        <div class="journey-stage active" onclick="selectJourneyStage(this, 'awareness')">
+                            <div class="stage-icon">👁️</div>
+                            <div class="stage-name">Awareness</div>
+                            <div class="stage-conversion">8.2%</div>
+                        </div>
+                        <div class="journey-stage" onclick="selectJourneyStage(this, 'consideration')">
+                            <div class="stage-icon">🤔</div>
+                            <div class="stage-name">Consideration</div>
+                            <div class="stage-conversion">23.1%</div>
+                        </div>
+                        <div class="journey-stage" onclick="selectJourneyStage(this, 'trial')">
+                            <div class="stage-icon">🔬</div>
+                            <div class="stage-name">Trial</div>
+                            <div class="stage-conversion">34.5%</div>
+                        </div>
+                        <div class="journey-stage" onclick="selectJourneyStage(this, 'conversion')">
+                            <div class="stage-icon">💳</div>
+                            <div class="stage-name">Conversion</div>
+                            <div class="stage-conversion">15.6%</div>
+                        </div>
+                        <div class="journey-stage" onclick="selectJourneyStage(this, 'retention')">
+                            <div class="stage-icon">🔄</div>
+                            <div class="stage-name">Retention</div>
+                            <div class="stage-conversion">67.8%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization Section -->
+                <div class="visualization-section">
+                    <div class="viz-header">
+                        <div class="viz-title">📊 Behavioral Analysis Charts</div>
+                        <div class="viz-controls">
+                            <button class="viz-btn" onclick="switchChart('segments')">Segments</button>
+                            <button class="viz-btn" onclick="switchChart('journey')">Journey</button>
+                            <button class="viz-btn" onclick="switchChart('psychology')">Psychology</button>
+                            <button class="viz-btn" onclick="expandChart()">🔍 Expand</button>
+                        </div>
+                    </div>
+                    
+                    <div class="viz-container">
+                        <canvas id="behavioralChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Refinement Section -->
+                <div class="refinement-section">
+                    <div style="font-weight: 600; margin-bottom: 12px;">💬 Refine Your Analysis</div>
+                    <input type="text" class="refinement-input" id="refinementInput" placeholder="Ask follow-up questions about segments or behaviors...">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="refineAnalysis()">Refine Analysis</button>
+                        <button class="btn btn-secondary" onclick="createCustomSegment()">Create Custom Segment</button>
+                        <button class="btn btn-secondary" onclick="compareSegments()">Compare Segments</button>
+                    </div>
+                    <div style="font-size: 12px; color: #718096; margin-top: 8px;">
+                        Refinements remaining: <strong>6/7</strong> • Each refinement improves segment accuracy
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="side-panel">
+            <!-- Active Analyses -->
+            <div class="panel-card">
+                <div class="panel-title">🔄 Active Analyses</div>
+                <div id="activeAnalyses">
+                    <div style="padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: 600; font-size: 14px;">Behavioral Segmentation</div>
+                        <div style="font-size: 12px; color: #718096;">Processing • 45s elapsed</div>
+                        <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 8px;">
+                            <div style="width: 73%; height: 100%; background: #667eea; border-radius: 2px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segment Insights -->
+            <div class="panel-card">
+                <div class="panel-title">💡 Key Insights</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="padding: 12px; background: #f0fff4; border-left: 4px solid #48bb78; border-radius: 6px;">
+                        <div style="font-weight: 600; font-size: 14px; color: #2d3748;">High-Intent Behavior</div>
+                        <div style="font-size: 12px; color: #4a5568; margin-top: 4px;">34% of users show power-user behavior patterns within first week</div>
+                    </div>
+                    <div style="padding: 12px; background: #fef5e7; border-left: 4px solid #ed8936; border-radius: 6px;">
+                        <div style="font-weight: 600; font-size: 14px; color: #2d3748;">Drop-off Pattern</div>
+                        <div style="font-size: 12px; color: #4a5568; margin-top: 4px;">Trial abandoners cite "overwhelm" as primary reason (67%)</div>
+                    </div>
+                    <div style="padding: 12px; background: #e6f7ff; border-left: 4px solid #1890ff; border-radius: 6px;">
+                        <div style="font-weight: 600; font-size: 14px; color: #2d3748;">Conversion Trigger</div>
+                        <div style="font-size: 12px; color: #4a5568; margin-top: 4px;">Team invitation within 48hrs increases conversion by 340%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaign Suggestions -->
+            <div class="panel-card">
+                <div class="panel-title">🎯 Campaign Suggestions</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;" onclick="createCampaign('trial-abandoners')">
+                        <div style="font-weight: 600; font-size: 14px;">Trial Abandoner Recovery</div>
+                        <div style="font-size: 12px; color: #718096;">Simplified onboarding email sequence</div>
+                    </div>
+                    <div style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;" onclick="createCampaign('power-users')">
+                        <div style="font-weight: 600; font-size: 14px;">Power User Acceleration</div>
+                        <div style="font-size: 12px; color: #718096;">Advanced features showcase</div>
+                    </div>
+                    <div style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;" onclick="createCampaign('team-inviters')">
+                        <div style="font-weight: 600; font-size: 14px;">Team Collaboration Push</div>
+                        <div style="font-size: 12px; color: #718096;">Encourage early team invitations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Status -->
+            <div class="panel-card">
+                <div class="panel-title">🔗 Data Integrations</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 14px;">Google Analytics</span>
+                        <span style="color: #48bb78;">● Connected</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 14px;">Mixpanel</span>
+                        <span style="color: #48bb78;">● Connected</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 14px;">Hotjar</span>
+                        <span style="color: #e53e3e;">● Disconnected</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 14px;">Salesforce</span>
+                        <span style="color: #e53e3e;">● Disconnected</span>
+                    </div>
+                </div>
+                <button style="width: 100%; padding: 8px; background: #667eea; color: white; border: none; border-radius: 6px; margin-top: 12px; cursor: pointer;" onclick="configureIntegrations()">
+                    Configure Integrations
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Modal -->
+    <div class="processing-modal" id="processingModal">
+        <div class="processing-content">
+            <div class="processing-spinner"></div>
+            <div class="processing-stage" id="processingStage">Initializing Behavioral Analysis</div>
+            <div class="processing-description" id="processingDescription">Setting up AI engines for customer psychology analysis...</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% complete</div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="cancelAnalysis()">Cancel Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h3 style="margin-bottom: 20px;">📊 Export Psychographic Analysis</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px;">
+                <div class="option-card" onclick="selectExportOption(this, 'psychographic-report')">
+                    <div class="option-icon">📊</div>
+                    <div class="option-title">Psychographic Report</div>
+                    <div class="option-description">Complete behavioral analysis with personas</div>
+                </div>
+                <div class="option-card" onclick="selectExportOption(this, 'segment-data')">
+                    <div class="option-icon">📈</div>
+                    <div class="option-title">Segment Data Export</div>
+                    <div class="option-description">Raw behavioral data for further analysis</div>
+                </div>
+                <div class="option-card" onclick="selectExportOption(this, 'campaign-ready')">
+                    <div class="option-icon">🎯</div>
+                    <div class="option-title">Campaign-Ready Export</div>
+                    <div class="option-description">Segments formatted for marketing platforms</div>
+                </div>
+                <div class="option-card" onclick="selectExportOption(this, 'presentation')">
+                    <div class="option-icon">📋</div>
+                    <div class="option-title">Executive Presentation</div>
+                    <div class="option-description">Stakeholder-ready slides with insights</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; margin-bottom: 8px; display: block;">Partial Export Options:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 14px;">
+                        <input type="checkbox" id="exportPersonas"> Personas Only
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 14px;">
+                        <input type="checkbox" id="exportJourney"> Journey Maps
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 14px;">
+                        <input type="checkbox" id="exportInsights"> Key Insights
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 14px;">
+                        <input type="checkbox" id="exportRecommendations"> Recommendations
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="processExport()">Generate Export</button>
+                <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedSources = ['google-analytics', 'mixpanel'];
+        let analysisType = 'behavioral-segments';
+        let currentChart = null;
+        let analysisData = null;
+        let activeSegments = [];
+
+        // Source management
+        function toggleSource(element, source) {
+            element.classList.toggle('connected');
+            
+            if (selectedSources.includes(source)) {
+                selectedSources = selectedSources.filter(s => s !== source);
+            } else {
+                selectedSources.push(source);
+            }
+            
+            console.log('Connected sources:', selectedSources);
+        }
+
+        // Option selection
+        function selectOption(element, option) {
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            analysisType = option;
+            
+            console.log('Selected analysis type:', analysisType);
+        }
+
+        // Run psychographic analysis
+        function runPsychographicAnalysis() {
+            if (selectedSources.length === 0) {
+                alert('Please connect at least one data source.');
+                return;
+            }
+            
+            showProcessingModal();
+            simulateAnalysis();
+        }
+
+        // Show processing modal
+        function showProcessingModal() {
+            document.getElementById('processingModal').classList.add('active');
+        }
+
+        // Hide processing modal
+        function hideProcessingModal() {
+            document.getElementById('processingModal').classList.remove('active');
+        }
+
+        // Simulate analysis process
+        function simulateAnalysis() {
+            const stages = [
+                { stage: "Initializing Behavioral Analysis", description: "Setting up AI engines for customer psychology analysis...", progress: 0 },
+                { stage: "Data Collection", description: "Gathering behavioral data from connected sources...", progress: 15 },
+                { stage: "Pattern Recognition", description: "Identifying behavioral patterns and psychological traits...", progress: 35 },
+                { stage: "Segment Clustering", description: "Creating psychographic clusters using AI algorithms...", progress: 55 },
+                { stage: "Journey Mapping", description: "Mapping customer journeys with emotional context...", progress: 75 },
+                { stage: "Insight Generation", description: "Generating actionable behavioral insights...", progress: 90 },
+                { stage: "Complete", description: "Behavioral analysis complete! Displaying results...", progress: 100 }
+            ];
+            
+            let currentStage = 0;
+            
+            const interval = setInterval(() => {
+                if (currentStage < stages.length) {
+                    const stage = stages[currentStage];
+                    document.getElementById('processingStage').textContent = stage.stage;
+                    document.getElementById('processingDescription').textContent = stage.description;
+                    document.getElementById('progressFill').style.width = stage.progress + '%';
+                    document.getElementById('progressText').textContent = stage.progress + '% complete';
+                    
+                    currentStage++;
+                } else {
+                    clearInterval(interval);
+                    hideProcessingModal();
+                    showResults();
+                }
+            }, 2000);
+        }
+
+        // Show analysis results
+        function showResults() {
+            document.getElementById('analysisResults').classList.add('active');
+            populateSegments();
+            createChart();
+            
+            document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Populate behavioral segments
+        function populateSegments() {
+            const segments = [
+                {
+                    name: 'Trial Abandoners',
+                    tagline: 'Overwhelmed by complexity',
+                    percentage: 34,
+                    size: '2,100 users',
+                    conversion: '3.2%',
+                    value: '$89',
+                    traits: ['Feature-overwhelmed', 'Price-sensitive', 'Mobile-first', 'Comparison shoppers']
+                },
+                {
+                    name: 'Power Customizers', 
+                    tagline: 'Enterprise potential users',
+                    percentage: 23,
+                    size: '1,420 users',
+                    conversion: '67%',
+                    value: '$340',
+                    traits: ['Tech-savvy', 'Integration-heavy', 'Customization-focused', 'Growth-oriented']
+                },
+                {
+                    name: 'Quick Starters',
+                    tagline: 'Template-seeking teams',
+                    percentage: 28,
+                    size: '1,750 users', 
+                    conversion: '45%',
+                    value: '$156',
+                    traits: ['Template-focused', 'Team-oriented', 'Efficiency-driven', 'Speed-focused']
+                },
+                {
+                    name: 'Enterprise Evaluators',
+                    tagline: 'Large team decision makers',
+                    percentage: 15,
+                    size: '900 users',
+                    conversion: '78%', 
+                    value: '$890',
+                    traits: ['Security-conscious', 'Compliance-focused', 'ROI-driven', 'Process-oriented']
+                }
+            ];
+            
+            const segmentsGrid = document.getElementById('segmentsGrid');
+            segmentsGrid.innerHTML = '';
+            
+            segments.forEach(segment => {
+                const segmentCard = document.createElement('div');
+                segmentCard.className = 'segment-card';
+                
+                segmentCard.innerHTML = `
+                    <div class="segment-header">
+                        <div>
+                            <div class="segment-name">${segment.name}</div>
+                            <div class="segment-tagline">${segment.tagline}</div>
+                        </div>
+                        <div class="segment-percentage">${segment.percentage}%</div>
+                    </div>
+                    
+                    <div class="segment-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${segment.size}</div>
+                            <div class="stat-label">Users</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${segment.conversion}</div>
+                            <div class="stat-label">Conversion</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${segment.value}</div>
+                            <div class="stat-label">Avg Value</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Key Traits</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            ${segment.traits.map(trait => 
+                                `<span style="background: #e6f7ff; color: #1890ff; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;">${trait}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="segment-actions">
+                        <button class="action-btn" onclick="viewSegmentDetails('${segment.name}')">View Details</button>
+                        <button class="action-btn" onclick="createCampaign('${segment.name.toLowerCase()}')">Create Campaign</button>
+                        <button class="action-btn" onclick="exportSegment('${segment.name}')">Export</button>
+                    </div>
+                `;
+                
+                segmentsGrid.appendChild(segmentCard);
+            });
+            
+            activeSegments = segments;
+        }
+
+        // Create behavioral chart
+        function createChart() {
+            const ctx = document.getElementById('behavioralChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Trial Abandoners', 'Power Customizers', 'Quick Starters', 'Enterprise Evaluators'],
+                    datasets: [{
+                        data: [34, 23, 28, 15],
+                        backgroundColor: [
+                            '#ff6b6b',
+                            '#4ecdc4',
+                            '#45b7d1',
+                            '#96ceb4'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Behavioral Segment Distribution'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart switching functions
+        function switchChart(type) {
+            console.log('Switching to chart:', type);
+            
+            if (type === 'segments') {
+                createChart();
+            } else if (type === 'journey') {
+                createJourneyChart();
+            } else if (type === 'psychology') {
+                createPsychologyChart();
+            }
+        }
+
+        function createJourneyChart() {
+            const ctx = document.getElementById('behavioralChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Awareness', 'Consideration', 'Trial', 'Conversion', 'Retention'],
+                    datasets: [{
+                        label: 'Conversion Rate',
+                        data: [8.2, 23.1, 34.5, 15.6, 67.8],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Customer Journey Conversion Rates'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Conversion Rate (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPsychologyChart() {
+            const ctx = document.getElementById('behavioralChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Tech Savvy', 'Price Sensitive', 'Feature Focused', 'Team Oriented', 'Speed Focused'],
+                    datasets: [{
+                        label: 'Trial Abandoners',
+                        data: [2, 8, 3, 4, 7],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)'
+                    }, {
+                        label: 'Power Customizers',
+                        data: [9, 3, 9, 6, 5],
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Psychological Trait Comparison'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        // Journey stage selection
+        function selectJourneyStage(element, stage) {
+            document.querySelectorAll('.journey-stage').forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            element.classList.add('active');
+            console.log('Selected journey stage:', stage);
+        }
+
+        // Export functions
+        function exportAnalysis(format) {
+            console.log('Exporting analysis as:', format);
+            
+            const formats = {
+                'psychographic-report': 'Psychographic Analysis Report',
+                'segment-data': 'Behavioral Segment Data',
+                'campaign-ready': 'Campaign-Ready Export'
+            };
+            
+            alert(`Generating ${formats[format]}... Download will start shortly.`);
+        }
+
+        function showExportOptions() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function selectExportOption(element, option) {
+            document.querySelectorAll('#exportModal .option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            console.log('Selected export option:', option);
+        }
+
+        function processExport() {
+            const selectedFormat = document.querySelector('#exportModal .option-card.selected');
+            const includesPersonas = document.getElementById('exportPersonas').checked;
+            const includesJourney = document.getElementById('exportJourney').checked;
+            const includesInsights = document.getElementById('exportInsights').checked;
+            const includesRecommendations = document.getElementById('exportRecommendations').checked;
+            
+            console.log('Processing export with options:', {
+                format: selectedFormat?.dataset?.format || 'psychographic-report',
+                personas: includesPersonas,
+                journey: includesJourney,
+                insights: includesInsights,
+                recommendations: includesRecommendations
+            });
+            
+            alert('Psychographic export is being generated... You will receive an email when ready.');
+            closeExportModal();
+        }
+
+        // Refinement functions
+        function refineAnalysis() {
+            const refinementQuery = document.getElementById('refinementInput').value;
+            if (!refinementQuery.trim()) {
+                alert('Please enter a refinement question.');
+                return;
+            }
+            
+            console.log('Refining analysis with:', refinementQuery);
+            alert('Refining behavioral analysis... Updated insights will appear shortly.');
+            
+            document.getElementById('refinementInput').value = '';
+        }
+
+        function createCustomSegment() {
+            alert('Opening custom segment builder...');
+        }
+
+        function compareSegments() {
+            alert('Opening segment comparison tool...');
+        }
+
+        // Segment actions
+        function viewSegmentDetails(segmentName) {
+            console.log('Viewing details for:', segmentName);
+            alert(`Opening detailed analysis for ${segmentName} segment`);
+        }
+
+        function createCampaign(segmentType) {
+            console.log('Creating campaign for:', segmentType);
+            
+            const campaignTypes = {
+                'trial-abandoners': 'Simplified Onboarding Campaign',
+                'power-users': 'Advanced Features Showcase',
+                'power-customizers': 'Advanced Features Showcase',
+                'team-inviters': 'Team Collaboration Campaign',
+                'quick-starters': 'Template-First Campaign',
+                'enterprise-evaluators': 'Enterprise Security Campaign'
+            };
+            
+            const campaignName = campaignTypes[segmentType] || 'Targeted Campaign';
+            
+            parent.postMessage({
+                type: 'refleqt-event',
+                event: 'campaign_created',
+                data: {
+                    segmentType: segmentType,
+                    campaignName: campaignName,
+                    source: 'funnel_lytics'
+                }
+            }, '*');
+            
+            alert(`Creating ${campaignName}... Campaign builder will open shortly.`);
+        }
+
+        function exportSegment(segmentName) {
+            console.log('Exporting segment:', segmentName);
+            
+            parent.postMessage({
+                type: 'refleqt-event',
+                event: 'segment_exported',
+                data: {
+                    segmentName: segmentName,
+                    format: 'detailed_profile',
+                    source: 'funnel_lytics'
+                }
+            }, '*');
+            
+            alert(`Exporting ${segmentName} segment data... Download will start shortly.`);
+        }
+
+        // Configuration functions
+        function saveConfiguration() {
+            alert('Analysis configuration saved successfully!');
+        }
+
+        function loadTemplate() {
+            alert('Loading behavioral analysis template...');
+        }
+
+        function configureIntegrations() {
+            alert('Opening data integration configuration...');
+        }
+
+        function cancelAnalysis() {
+            hideProcessingModal();
+            alert('Behavioral analysis cancelled.');
+        }
+
+        function expandChart() {
+            alert('Opening full-screen chart view...');
+        }
+
+        // Cross-product messaging
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'strategy-cohort-data') {
+                console.log('Received competitor data from Strategy Cohorts:', event.data);
+                // Integrate competitor customer data for psychographic comparison
+            }
+            
+            if (event.data.type === 'research-swarm-insights') {
+                console.log('Received market insights from Research Swarms:', event.data);
+                // Use market research to validate behavioral assumptions
+            }
+        });
+
+        // Send behavioral insights to other sub-products
+        function shareBehavioralInsights() {
+            const insights = {
+                segments: activeSegments,
+                conversionTriggers: ['team_invitation', 'template_usage', 'advanced_features'],
+                dropOffPoints: ['feature_overload', 'pricing_concerns', 'complexity'],
+                optimizationOpportunities: [
+                    'Simplify onboarding for trial abandoners',
+                    'Fast-track power users to advanced features', 
+                    'Template-first approach for quick starters',
+                    'Security-focused messaging for enterprise'
+                ]
+            };
+            
+            parent.postMessage({
+                type: 'refleqt-event',
+                event: 'behavioral_insights_ready',
+                data: insights
+            }, '*');
+        }
+
+        // Auto-refresh behavioral data
+        setInterval(() => {
+            checkForBehavioralUpdates();
+        }, 60000); // Check every minute
+
+        function checkForBehavioralUpdates() {
+            const random = Math.random();
+            if (random < 0.05) { // 5% chance of behavioral shift
+                addBehavioralAlert();
+            }
+        }
+
+        function addBehavioralAlert() {
+            console.log('New behavioral pattern detected');
+            
+            parent.postMessage({
+                type: 'refleqt-event',
+                event: 'behavioral_alert',
+                data: {
+                    type: 'segment_shift',
+                    message: 'Significant behavioral pattern change detected in Power Customizers segment',
+                    impact: 'high',
+                    timestamp: Date.now()
+                }
+            }, '*');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Funnel-lytics page initialized');
+            
+            // Share initial behavioral insights with other sub-products
+            setTimeout(shareBehavioralInsights, 2000);
+        });
+    </script>
+</body>
+</html>
