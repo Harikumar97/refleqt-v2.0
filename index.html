@@ -208,19 +208,92 @@
         .email-submit:hover {
             transform: scale(1.05);
         }
-		
-		
 
-        /* Features Section */
-        .features-section {
-            padding: 100px 0;
-            background: #f8fafc;
+        /* Strategy Preview Section */
+        .strategy-preview {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 80px 0;
+            margin: 60px 0;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+
+        .preview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .preview-stats {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .demo-query {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .query-example {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .insight-preview {
+            padding: 8px 12px;
+            background: #f0fff4;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 0;
+            background: #f8fafc;
         }
 
         .section-title {
@@ -422,50 +495,7 @@
             font-weight: bold;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hamburger {
-                display: flex;
-            }
-
-            .nav-menu {
-                display: none;
-            }
-
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .newsletter-form {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .newsletter-input {
-                min-width: auto;
-                width: 100%;
-            }
-
-            .modal-content {
-                padding: 30px 20px;
-            }
-        }
-
-        /* Onboarding styles - keeping from previous version */
+        /* Onboarding styles */
         .onboarding-modal {
             position: fixed;
             top: 0;
@@ -676,70 +706,61 @@
             transition: width 0.5s ease;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .newsletter-input {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
             .challenges-grid {
                 grid-template-columns: 1fr;
             }
+
+            .preview-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .preview-stats {
+                justify-content: center;
+            }
         }
-		
-		.strategy-preview {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    padding: 80px 0;
-    margin: 60px 0;
-}
-
-.preview-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-}
-
-.preview-stats {
-    display: flex;
-    gap: 30px;
-    margin: 30px 0;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 32px;
-    font-weight: bold;
-    color: #667eea;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: #718096;
-}
-
-.demo-query {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.query-example {
-    background: #f8fafc;
-    padding: 16px;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-.insight-preview {
-    padding: 8px 12px;
-    background: #f0fff4;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-		
     </style>
 </head>
 <body>
@@ -915,46 +936,46 @@
                             </form>
                         </div>
                     </section>
-					
-					<!-- Strategy Cohort Preview -->
-					<section class="strategy-preview">
-						<div class="container">
-							<div class="preview-content">
-								<div class="preview-text">
-									<h3>🎯 Get Competitive Intelligence in Under 2 Minutes</h3>
-									<p>Ask any strategic question about your competitors and get AI-powered insights with confidence scores, visualizations, and actionable recommendations.</p>
-									<div class="preview-stats">
-										<div class="stat-item">
-											<div class="stat-number">< 2min</div>
-											<div class="stat-label">Analysis Time</div>
-										</div>
-										<div class="stat-item">
-											<div class="stat-number">10</div>
-											<div class="stat-label">Key Insights</div>
-										</div>
-										<div class="stat-item">
-											<div class="stat-number">87%</div>
-											<div class="stat-label">Avg Confidence</div>
-										</div>
-									</div>
-									<a href="portal.html" class="btn btn-primary">Try Strategy Cohort</a>
-								</div>
-								<div class="preview-demo">
-									<!-- Interactive preview or screenshot -->
-									<div class="demo-query">
-										<div class="query-example">
-											"How are Asana and Monday.com positioning their enterprise pricing?"
-										</div>
-										<div class="results-preview">
-											<div class="insight-preview">💡 Asana pricing 15% premium with automation focus</div>
-											<div class="insight-preview">📊 Monday.com targeting larger enterprises</div>
-											<div class="insight-preview">🎯 Gap opportunity in mid-market segment</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</section>
+
+                    {/* Strategy Cohort Preview */}
+                    <section className="strategy-preview">
+                        <div className="container">
+                            <div className="preview-content">
+                                <div className="preview-text">
+                                    <h3>🎯 Get Competitive Intelligence in Under 2 Minutes</h3>
+                                    <p>Ask any strategic question about your competitors and get AI-powered insights with confidence scores, visualizations, and actionable recommendations.</p>
+                                    <div className="preview-stats">
+                                        <div className="stat-item">
+                                            <div className="stat-number">{"< 2min"}</div>
+                                            <div className="stat-label">Analysis Time</div>
+                                        </div>
+                                        <div className="stat-item">
+                                            <div className="stat-number">10</div>
+                                            <div className="stat-label">Key Insights</div>
+                                        </div>
+                                        <div className="stat-item">
+                                            <div className="stat-number">87%</div>
+                                            <div className="stat-label">Avg Confidence</div>
+                                        </div>
+                                    </div>
+                                    <a href="portal.html" className="btn btn-primary">Try Strategy Cohort</a>
+                                </div>
+                                <div className="preview-demo">
+                                    {/* Interactive preview or screenshot */}
+                                    <div className="demo-query">
+                                        <div className="query-example">
+                                            "How are Asana and Monday.com positioning their enterprise pricing?"
+                                        </div>
+                                        <div className="results-preview">
+                                            <div className="insight-preview">💡 Asana pricing 15% premium with automation focus</div>
+                                            <div className="insight-preview">📊 Monday.com targeting larger enterprises</div>
+                                            <div className="insight-preview">🎯 Gap opportunity in mid-market segment</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
                     {/* Features Section */}
                     <section className="features-section" id="features">
