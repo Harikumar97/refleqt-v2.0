@@ -1,670 +1,223 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Content Calendar - Refleqt PM</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
         }
 
-```
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-        color: #fff;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    .dashboard-container {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
-
-    /* Header */
-    .header {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        padding: 15px 30px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header-title {
-        font-size: 20px;
-        font-weight: 600;
-    }
-
-    .header-controls {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .view-toggle {
-        display: flex;
-        gap: 5px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 3px;
-        border-radius: 8px;
-    }
-
-    .view-btn {
-        padding: 6px 12px;
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.7);
-        cursor: pointer;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-
-    .view-btn.active {
-        background: rgba(103, 126, 234, 0.3);
-        color: #fff;
-    }
-
-    .export-btn {
-        padding: 6px 12px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-    }
-
-    /* Command Bar */
-    .command-bar {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 10px 30px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .metric-pill {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 5px 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        font-size: 12px;
-    }
-
-    .metric-label {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .metric-value {
-        font-weight: 600;
-    }
-
-    .metric-ai { color: #667eea; }
-    .metric-scheduled { color: #10b981; }
-    .metric-performance { color: #f59e0b; }
-
-    /* Main Layout */
-    .content-layout {
-        flex: 1;
-        display: flex;
-        overflow: hidden;
-    }
-
-    /* Calendar Section */
-    .calendar-section {
-        flex: 1;
-        overflow: auto;
-        padding: 20px;
-    }
-
-    .calendar-grid {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        overflow: visible;
-        min-width: 1000px;
-    }
-
-    .week-view {
-        display: grid;
-        grid-template-columns: 100px repeat(7, 1fr);
-        grid-auto-rows: minmax(120px, auto);
-    }
-
-    .platform-label {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 15px 10px;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        font-weight: 500;
-        position: sticky;
-        left: 0;
-        background: rgba(15, 12, 41, 0.95);
-    }
-
-    .platform-icon {
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: white;
-    }
-
-    .day-header {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 15px 10px;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: center;
-        position: sticky;
-        top: 0;
-        background: rgba(15, 12, 41, 0.95);
-        z-index: 10;
-    }
-
-    .day-name {
-        font-size: 10px;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 5px;
-    }
-
-    .day-date {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .time-slot {
-        min-height: 120px;
-        padding: 8px;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        position: relative;
-    }
-
-    /* Content Cards */
-    .content-card {
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        border-left: 3px solid transparent;
-        font-size: 11px;
-    }
-
-    .content-card:hover {
-        background: rgba(255, 255, 255, 0.12);
-        transform: translateX(2px);
-    }
-
-    .content-card.ai-suggested {
-        border-left-color: #667eea;
-        background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(255, 255, 255, 0.08) 100%);
-    }
-
-    .content-card.scheduled {
-        border-left-color: #10b981;
-    }
-
-    .content-card.published {
-        border-left-color: #6b7280;
-        opacity: 0.8;
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-        font-size: 9px;
-    }
-
-    .card-time {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .card-status {
-        padding: 2px 5px;
-        border-radius: 3px;
-        text-transform: uppercase;
-        font-weight: 600;
-        font-size: 8px;
-    }
-
-    .status-ai { background: rgba(102, 126, 234, 0.2); color: #818cf8; }
-    .status-scheduled { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    .status-published { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
-
-    .card-title {
-        font-size: 11px;
-        line-height: 1.3;
-        margin-bottom: 5px;
-    }
-
-    .card-metrics {
-        display: flex;
-        gap: 8px;
-        font-size: 9px;
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .performance-indicator {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #10b981;
-    }
-
-    .performance-indicator.trending {
-        background: #f59e0b;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    /* Detail Panel */
-    .detail-panel {
-        width: 400px;
-        background: rgba(255, 255, 255, 0.03);
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.3s ease;
-    }
-
-    .detail-panel.hidden {
-        transform: translateX(100%);
-        width: 0;
-    }
-
-    .panel-header {
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .panel-title {
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .close-btn {
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        font-size: 20px;
-    }
-
-    .panel-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    .detail-section {
-        margin-bottom: 25px;
-    }
-
-    .section-title {
-        font-size: 11px;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 10px;
-        letter-spacing: 0.5px;
-    }
-
-    .content-editor {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 12px;
-        min-height: 100px;
-        font-size: 12px;
-        color: #fff;
-        resize: vertical;
-    }
-
-    .platform-variants {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .variant-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 10px;
-        border-radius: 8px;
-        font-size: 11px;
-    }
-
-    .variant-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .variant-platform {
-        font-weight: 600;
-    }
-
-    .variant-status {
-        font-size: 9px;
-        padding: 2px 6px;
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-        border-radius: 3px;
-    }
-
-    /* Research Trail */
-    .research-trail {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .trail-item {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 8px;
-        border-radius: 6px;
-        font-size: 11px;
-        border-left: 2px solid #667eea;
-    }
-
-    .trail-source {
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 9px;
-        margin-top: 4px;
-    }
-
-    /* SEO Section */
-    .seo-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-    }
-
-    .tag {
-        padding: 4px 8px;
-        background: rgba(103, 126, 234, 0.2);
-        border-radius: 4px;
-        font-size: 10px;
-        color: #818cf8;
-    }
-
-    /* Performance Metrics */
-    .performance-chart {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 12px;
-        border-radius: 8px;
-        height: 100px;
-        display: flex;
-        align-items: flex-end;
-        gap: 4px;
-    }
-
-    .chart-bar {
-        flex: 1;
-        background: linear-gradient(to top, #667eea, #764ba2);
-        border-radius: 2px 2px 0 0;
-        position: relative;
-    }
-
-    .chart-label {
-        position: absolute;
-        bottom: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 8px;
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    /* Action Buttons */
-    .panel-actions {
-        padding: 15px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        gap: 10px;
-    }
-
-    .action-btn {
-        flex: 1;
-        padding: 8px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Integration Status */
-    .integration-status {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .integration-badge {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        font-size: 10px;
-    }
-
-    .integration-badge.connected {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-    }
-
-    .integration-badge.pending {
-        background: rgba(245, 158, 11, 0.2);
-        color: #fbbf24;
-    }
-
-    /* Export Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal.active {
-        display: flex;
-    }
-
-    .modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 25px;
-        width: 90%;
-        max-width: 500px;
-    }
-
-    .modal-header {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-
-    .export-options {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .export-option {
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .export-option:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: #667eea;
-    }
-
-    .export-option.selected {
-        background: rgba(103, 126, 234, 0.2);
-        border-color: #667eea;
-    }
-
-    .option-title {
-        font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 4px;
-    }
-
-    .option-desc {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
-    /* Notification */
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 13px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        z-index: 1001;
-    }
-
-    .notification.show {
-        transform: translateX(0);
-    }
-
-    /* Empty Slot */
-    .empty-slot {
-        height: calc(100% - 8px);
-        min-height: 80px;
-        border: 2px dashed rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 11px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .empty-slot:hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.02);
-    }
-
-    .linkedin-icon { background: #0077B5; }
-    .twitter-icon { background: #1DA1F2; }
-    .instagram-icon { background: linear-gradient(45deg, #f09433 0%, #bc1888 100%); }
-    .youtube-icon { background: #FF0000; }
-    .blog-icon { background: #FF5722; }
-</style>
-```
-
+        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header-title { font-size: 20px; font-weight: 600; }
+        .header-controls { display: flex; gap: 15px; align-items: center; }
+        .view-toggle { display: flex; gap: 5px; background: rgba(255, 255, 255, 0.1); padding: 3px; border-radius: 8px; }
+        .view-btn {
+            padding: 6px 12px; background: none; border: none; color: rgba(255,255,255,.7);
+            cursor: pointer; border-radius: 6px; font-size: 12px; font-weight: 500;
+        }
+        .view-btn.active { background: rgba(103, 126, 234, 0.3); color: #fff; }
+        .export-btn {
+            padding: 6px 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+            color: #fff; border-radius: 6px; cursor: pointer; font-size: 12px;
+        }
+
+        /* Command Bar */
+        .command-bar {
+            background: rgba(255,255,255,.03); padding: 10px 30px;
+            border-bottom: 1px solid rgba(255,255,255,.1); display: flex; gap: 20px; align-items: center;
+        }
+        .metric-pill {
+            display: flex; align-items: center; gap: 8px; padding: 5px 12px;
+            background: rgba(255,255,255,.05); border-radius: 20px; font-size: 12px;
+        }
+        .metric-label { color: rgba(255,255,255,.5); }
+        .metric-value { font-weight: 600; }
+        .metric-ai { color: #667eea; }
+        .metric-scheduled { color: #10b981; }
+        .metric-performance { color: #f59e0b; }
+
+        /* Main Layout */
+        .content-layout { flex: 1; display: flex; overflow: hidden; }
+
+        /* Calendar Section */
+        .calendar-section { flex: 1; overflow: auto; padding: 20px; }
+        .calendar-grid { background: rgba(255,255,255,.05); border-radius: 12px; overflow: visible; min-width: 1000px; }
+        .week-view { display: grid; grid-template-columns: 100px repeat(7, 1fr); grid-auto-rows: minmax(120px, auto); }
+
+        .platform-label {
+            background: rgba(255,255,255,.03); padding: 15px 10px; border-right: 1px solid rgba(255,255,255,.1);
+            border-bottom: 1px solid rgba(255,255,255,.05); display: flex; align-items: center; gap: 8px;
+            font-size: 12px; font-weight: 500; position: sticky; left: 0; background: rgba(15,12,41,.95);
+        }
+        .platform-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; }
+
+        .day-header {
+            background: rgba(255,255,255,.03); padding: 15px 10px; border-right: 1px solid rgba(255,255,255,.1);
+            border-bottom: 1px solid rgba(255,255,255,.1); text-align: center; position: sticky; top: 0;
+            background: rgba(15,12,41,.95); z-index: 10;
+        }
+        .day-header.today { outline: 2px solid rgba(103,126,234,.4); }
+        .day-name { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 5px; }
+        .day-date { font-size: 18px; font-weight: 600; }
+
+        .time-slot {
+            min-height: 120px; padding: 8px; border-right: 1px solid rgba(255,255,255,.1);
+            border-bottom: 1px solid rgba(255,255,255,.05); position: relative;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: rgba(255,255,255,.08); border-radius: 8px; padding: 10px; margin-bottom: 6px;
+            cursor: pointer; transition: all .3s ease; position: relative; border-left: 3px solid transparent; font-size: 11px;
+        }
+        .content-card:hover { background: rgba(255,255,255,.12); transform: translateX(2px); }
+        .content-card.ai-suggested { border-left-color: #667eea; background: linear-gradient(90deg, rgba(102,126,234,.1) 0%, rgba(255,255,255,.08) 100%); }
+        .content-card.scheduled { border-left-color: #10b981; }
+        .content-card.published { border-left-color: #6b7280; opacity: 0.85; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 9px; }
+        .card-time { color: rgba(255,255,255,.5); }
+        .card-status { padding: 2px 5px; border-radius: 3px; text-transform: uppercase; font-weight: 600; font-size: 8px; }
+        .status-ai { background: rgba(102,126,234,.2); color: #818cf8; }
+        .status-scheduled { background: rgba(16,185,129,.2); color: #10b981; }
+        .status-published { background: rgba(107,114,128,.2); color: #9ca3af; }
+        .card-title { font-size: 11px; line-height: 1.3; margin-bottom: 5px; }
+        .card-metrics { display: flex; gap: 8px; font-size: 9px; color: rgba(255,255,255,.5); }
+        .performance-indicator { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+        .performance-indicator.trending { background: #f59e0b; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+        /* Detail Panel */
+        .detail-panel { width: 400px; background: rgba(255,255,255,.03); border-left: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; transition: transform .3s ease; }
+        .detail-panel.hidden { transform: translateX(100%); width: 0; }
+        .panel-header { padding: 15px 20px; background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-size: 14px; font-weight: 600; }
+        .close-btn { background: none; border: none; color: rgba(255,255,255,.5); cursor: pointer; font-size: 20px; }
+        .panel-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .detail-section { margin-bottom: 25px; }
+        .section-title { font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 10px; letter-spacing: .5px; }
+        .content-editor {
+            width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px; padding: 12px; min-height: 100px; font-size: 12px; color: #fff; resize: vertical;
+        }
+        .platform-variants { display: flex; flex-direction: column; gap: 10px; }
+        .variant-card { background: rgba(255,255,255,.05); padding: 10px; border-radius: 8px; font-size: 11px; }
+        .variant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .variant-platform { font-weight: 600; }
+        .variant-status { font-size: 9px; padding: 2px 6px; background: rgba(16,185,129,.2); color: #10b981; border-radius: 3px; }
+
+        /* Research Trail */
+        .research-trail { display: flex; flex-direction: column; gap: 8px; }
+        .trail-item { background: rgba(255,255,255,.05); padding: 8px; border-radius: 6px; font-size: 11px; border-left: 2px solid #667eea; }
+        .trail-source { color: rgba(255,255,255,.5); font-size: 9px; margin-top: 4px; }
+
+        /* SEO */
+        .seo-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { padding: 4px 8px; background: rgba(103,126,234,.2); border-radius: 4px; font-size: 10px; color: #818cf8; }
+
+        /* Performance chart */
+        .performance-chart { background: rgba(255,255,255,.05); padding: 12px; border-radius: 8px; height: 100px; display: flex; align-items: flex-end; gap: 4px; }
+        .chart-bar { flex: 1; background: linear-gradient(to top, #667eea, #764ba2); border-radius: 2px 2px 0 0; position: relative; }
+        .chart-label { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 8px; color: rgba(255,255,255,.5); }
+
+        /* Actions */
+        .panel-actions { padding: 15px 20px; background: rgba(255,255,255,.05); border-top: 1px solid rgba(255,255,255,.1); display: flex; gap: 10px; }
+        .action-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all .3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.2); }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+
+        /* Integrations */
+        .integration-status { display: flex; gap: 8px; flex-wrap: wrap; }
+        .integration-badge { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(255,255,255,.05); border-radius: 4px; font-size: 10px; }
+        .integration-badge.connected { background: rgba(16,185,129,.2); color: #10b981; }
+        .integration-badge.pending { background: rgba(245,158,11,.2); color: #fbbf24; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 25px; width: 90%; max-width: 500px; }
+        .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .export-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .export-option { padding: 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; cursor: pointer; transition: all .3s ease; }
+        .export-option:hover { background: rgba(255,255,255,.08); border-color: #667eea; }
+        .export-option.selected { background: rgba(103,126,234,.2); border-color: #667eea; }
+        .option-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+        .option-desc { font-size: 11px; color: rgba(255,255,255,.6); }
+
+        /* Notification */
+        .notification {
+            position: fixed; top: 20px; right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 12px 20px; border-radius: 8px; font-size: 13px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+            transform: translateX(400px); transition: transform .3s ease; z-index: 1001;
+        }
+        .notification.show { transform: translateX(0); }
+
+        /* Empty slot */
+        .empty-slot {
+            height: calc(100% - 8px); min-height: 80px; border: 2px dashed rgba(255,255,255,.1); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.3);
+            font-size: 11px; cursor: pointer; transition: all .3s ease;
+        }
+        .empty-slot:hover { border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.02); }
+
+        .linkedin-icon { background: #0077B5; }
+        .twitter-icon { background: #1DA1F2; }
+        .instagram-icon { background: linear-gradient(45deg, #f09433 0%, #bc1888 100%); }
+        .youtube-icon { background: #FF0000; }
+        .blog-icon { background: #FF5722; }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <header class="header">
-            <h1 class="header-title">Smart Content Calendar</h1>
-            <div class="header-controls">
-                <div class="view-toggle">
-                    <button class="view-btn active" onclick="switchView('week')">Week</button>
-                    <button class="view-btn" onclick="switchView('month')">Month</button>
-                    <button class="view-btn" onclick="switchView('list')">List</button>
-                </div>
-                <button class="export-btn" onclick="openExportModal()">Export</button>
+<div class="dashboard-container">
+    <!-- Header -->
+    <header class="header">
+        <h1 class="header-title">Smart Content Calendar</h1>
+        <div class="header-controls">
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="switchView('week', this)">Week</button>
+                <button class="view-btn" onclick="switchView('month', this)">Month</button>
+                <button class="view-btn" onclick="switchView('list', this)">List</button>
             </div>
-        </header>
+            <button class="export-btn" onclick="openExportModal()">Export</button>
+        </div>
+    </header>
 
-```
     <!-- Command Bar -->
     <div class="command-bar">
         <div class="metric-pill">
             <span class="metric-label">AI Suggested:</span>
-            <span class="metric-value metric-ai">8</span>
+            <span class="metric-value metric-ai" id="metricAi">8</span>
         </div>
         <div class="metric-pill">
             <span class="metric-label">Scheduled:</span>
-            <span class="metric-value metric-scheduled">12</span>
+            <span class="metric-value metric-scheduled" id="metricScheduled">12</span>
         </div>
         <div class="metric-pill">
             <span class="metric-label">Avg Performance:</span>
-            <span class="metric-value metric-performance">+23%</span>
+            <span class="metric-value metric-performance" id="metricPerf">+23%</span>
         </div>
         <div class="metric-pill" style="margin-left: auto;">
             <span class="metric-label">Research Swarms Active:</span>
-            <span class="metric-value">3</span>
+            <span class="metric-value" id="metricSwarms">3</span>
         </div>
     </div>
 
@@ -682,14 +235,14 @@
         <!-- Detail Panel -->
         <div class="detail-panel hidden" id="detailPanel">
             <div class="panel-header">
-                <h2 class="panel-title">Content Details</h2>
+                <h2 class="panel-title" id="panelTitle">Content Details</h2>
                 <button class="close-btn" onclick="closeDetailPanel()">&times;</button>
             </div>
-            
+
             <div class="panel-content" id="panelContent">
                 <!-- Dynamic content will be loaded here -->
             </div>
-            
+
             <div class="panel-actions">
                 <button class="action-btn btn-secondary" onclick="assignWriter()">Assign Writer</button>
                 <button class="action-btn btn-primary" onclick="approveContent()">Approve & Schedule</button>
@@ -727,205 +280,205 @@
 <div class="notification" id="notification"></div>
 
 <script>
-    // Content Data Structure
-    const contentDatabase = {
-        'content_001': {
-            id: 'content_001',
-            title: '5 Trends Reshaping B2B Marketing in 2025',
-            platform: 'linkedin',
-            status: 'ai-suggested',
-            time: '10:00 AM',
-            date: 'Mon',
-            content: {
-                body: 'Comprehensive analysis of emerging B2B marketing trends...',
-                variants: {
-                    linkedin: {
-                        format: 'article',
-                        content: 'Full LinkedIn article content...',
-                        hashtags: ['#B2BMarketing', '#DigitalTransformation', '#AI'],
-                        seo: {
-                            keywords: ['B2B marketing trends', '2025 marketing', 'digital transformation'],
-                            meta_desc: 'Discover the top 5 trends reshaping B2B marketing in 2025'
-                        }
-                    },
-                    twitter: {
-                        format: 'thread',
-                        tweets: [
-                            '1/ The B2B marketing landscape is evolving rapidly. Here are 5 trends you cannot ignore in 2025 🧵',
-                            '2/ AI-Powered Personalization: Moving beyond basic segmentation to hyper-personalized experiences',
-                            '3/ Account-Based Everything: ABM is expanding to ABX - Account-Based Experience'
-                        ]
+/* ===================== SAMPLE DATA ===================== */
+const contentDatabase = {
+    'content_001': {
+        id: 'content_001',
+        title: '5 Trends Reshaping B2B Marketing in 2025',
+        platform: 'linkedin',
+        status: 'ai-suggested',
+        time: '10:00 AM',
+        date: 'Mon',
+        content: {
+            body: 'Comprehensive analysis of emerging B2B marketing trends...',
+            variants: {
+                linkedin: {
+                    format: 'article',
+                    content: 'Full LinkedIn article content...',
+                    hashtags: ['#B2BMarketing', '#DigitalTransformation', '#AI'],
+                    seo: {
+                        keywords: ['B2B marketing trends', '2025 marketing', 'digital transformation'],
+                        meta_desc: 'Discover the top 5 trends reshaping B2B marketing in 2025'
                     }
-                }
-            },
-            research: {
-                swarm_id: 'swarm_12345',
-                confidence: 0.92,
-                sources: [
-                    {
-                        url: 'https://example.com/research1',
-                        title: 'Gartner B2B Marketing Report 2024',
-                        relevance: 0.95,
-                        key_extract: 'AI adoption in B2B marketing has increased by 300%'
-                    },
-                    {
-                        url: 'https://example.com/research2',
-                        title: 'Forrester Digital Transformation Study',
-                        relevance: 0.88,
-                        key_extract: 'Digital-first strategies showing 45% higher ROI'
-                    }
-                ],
-                decision_path: [
-                    'Competitor analysis identified thought leadership gap',
-                    'Trending topic score: 8.5/10 based on search volume',
-                    'Audience engagement prediction: High (based on historical data)'
-                ]
-            },
-            performance: {
-                predicted: {
-                    engagement: 850,
-                    reach: 3500,
-                    conversion_probability: 0.23
                 },
-                actual: null
-            },
-            integrations: {
-                linkedin: { status: 'connected', account: 'company_page' },
-                analytics: { status: 'connected', tracking_id: 'UA-12345' },
-                slack: { status: 'connected', channel: '#marketing' }
-            }
-        },
-        'content_002': {
-            id: 'content_002',
-            title: 'Case Study: How We Increased ROI by 300%',
-            platform: 'linkedin',
-            status: 'scheduled',
-            time: '11:00 AM',
-            date: 'Tue',
-            content: {
-                body: 'Detailed case study of our client success story...'
-            },
-            performance: {
-                predicted: {
-                    engagement: 650,
-                    reach: 2800
+                twitter: {
+                    format: 'thread',
+                    tweets: [
+                        '1/ The B2B marketing landscape is evolving rapidly. Here are 5 trends you cannot ignore in 2025 🧵',
+                        '2/ AI-Powered Personalization: Moving beyond basic segmentation to hyper-personalized experiences',
+                        '3/ Account-Based Everything: ABM is expanding to ABX - Account-Based Experience'
+                    ]
                 }
             }
         },
-        'content_003': {
-            id: 'content_003',
-            title: 'New blog post is live! Check it out...',
-            platform: 'twitter',
-            status: 'published',
-            time: '10:00 AM',
-            date: 'Wed',
-            performance: {
-                actual: {
-                    impressions: 1200,
-                    likes: 45,
-                    retweets: 12,
-                    clicks: 89
+        research: {
+            swarm_id: 'swarm_12345',
+            confidence: 0.92,
+            sources: [
+                {
+                    url: 'https://example.com/research1',
+                    title: 'Gartner B2B Marketing Report 2024',
+                    relevance: 0.95,
+                    key_extract: 'AI adoption in B2B marketing has increased by 300%'
+                },
+                {
+                    url: 'https://example.com/research2',
+                    title: 'Forrester Digital Transformation Study',
+                    relevance: 0.88,
+                    key_extract: 'Digital-first strategies showing 45% higher ROI'
                 }
-            }
+            ],
+            decision_path: [
+                'Competitor analysis identified thought leadership gap',
+                'Trending topic score: 8.5/10 based on search volume',
+                'Audience engagement prediction: High (based on historical data)'
+            ]
+        },
+        performance: {
+            predicted: { engagement: 850, reach: 3500, conversion_probability: 0.23 },
+            actual: null
+        },
+        integrations: {
+            linkedin: { status: 'connected', account: 'company_page' },
+            analytics: { status: 'connected', tracking_id: 'UA-12345' },
+            slack: { status: 'connected', channel: '#marketing' }
         }
-    };
-
-    // Calendar Grid Data
-    const calendarData = [
-        { platform: 'LinkedIn', icon: 'in', class: 'linkedin-icon' },
-        { platform: 'Twitter/X', icon: 'X', class: 'twitter-icon' },
-        { platform: 'Instagram', icon: '📷', class: 'instagram-icon' },
-        { platform: 'YouTube', icon: '▶', class: 'youtube-icon' },
-        { platform: 'Blog', icon: '📝', class: 'blog-icon' }
-    ];
-
-    const weekDays = [
-        { name: 'Monday', date: '23' },
-        { name: 'Tuesday', date: '24' },
-        { name: 'Wednesday', date: '25', isToday: true },
-        { name: 'Thursday', date: '26' },
-        { name: 'Friday', date: '27' },
-        { name: 'Saturday', date: '28' },
-        { name: 'Sunday', date: '29' }
-    ];
-
-    // Initialize Calendar
-    function initializeCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        let html = '';
-
-        // Empty corner cell
-        html += '<div></div>';
-
-        // Day headers
-        weekDays.forEach(day => {
-            html += `
-                <div class="day-header ${day.isToday ? 'today' : ''}">
-                    <div class="day-name">${day.name.substr(0, 3).toUpperCase()}</div>
-                    <div class="day-date">${day.date}</div>
-                </div>
-            `;
-        });
-
-        // Platform rows
-        calendarData.forEach(platform => {
-            // Platform label
-            html += `
-                <div class="platform-label">
-                    <div class="platform-icon ${platform.class}">${platform.icon}</div>
-                    <span>${platform.platform}</span>
-                </div>
-            `;
-
-            // Time slots for each day
-            weekDays.forEach((day, dayIndex) => {
-                html += '<div class="time-slot" data-platform="' + platform.platform + '" data-day="' + day.name + '">';
-                
-                // Add sample content based on data
-                if (platform.platform === 'LinkedIn' && dayIndex === 0) {
-                    html += createContentCard('content_001');
-                } else if (platform.platform === 'LinkedIn' && dayIndex === 1) {
-                    html += createContentCard('content_002');
-                } else if (platform.platform === 'Twitter/X' && dayIndex === 2) {
-                    html += createContentCard('content_003');
-                } else if (Math.random() > 0.7) {
-                    // Random empty slots
-                    html += '<div class="empty-slot" onclick="createNewContent(this)">+ Add Content</div>';
-                }
-                
-                html += '</div>';
-            });
-        });
-
-        grid.innerHTML = html;
+    },
+    'content_002': {
+        id: 'content_002',
+        title: 'Case Study: How We Increased ROI by 300%',
+        platform: 'linkedin',
+        status: 'scheduled',
+        time: '11:00 AM',
+        date: 'Tue',
+        content: { body: 'Detailed case study of our client success story...' },
+        performance: { predicted: { engagement: 650, reach: 2800 } }
+    },
+    'content_003': {
+        id: 'content_003',
+        title: 'New blog post is live! Check it out...',
+        platform: 'twitter',
+        status: 'published',
+        time: '10:00 AM',
+        date: 'Wed',
+        performance: { actual: { impressions: 1200, likes: 45, retweets: 12, clicks: 89 } }
     }
+};
 
-    // Create Content Card HTML
-    function createContentCard(contentId) {
-        const content = contentDatabase[contentId];
-        if (!content) return '';
+const calendarData = [
+    { platform: 'LinkedIn', icon: 'in', class: 'linkedin-icon' },
+    { platform: 'Twitter/X', icon: 'X', class: 'twitter-icon' },
+    { platform: 'Instagram', icon: '📷', class: 'instagram-icon' },
+    { platform: 'YouTube', icon: '▶', class: 'youtube-icon' },
+    { platform: 'Blog', icon: '📝', class: 'blog-icon' }
+];
 
-        let metricsHtml = '';
-    if (content.performance?.actual) {
-        const perf = content.performance.actual;
+const weekDays = [
+    { name: 'Monday', date: '23' },
+    { name: 'Tuesday', date: '24' },
+    { name: 'Wednesday', date: '25', isToday: true },
+    { name: 'Thursday', date: '26' },
+    { name: 'Friday', date: '27' },
+    { name: 'Saturday', date: '28' },
+    { name: 'Sunday', date: '29' }
+];
+
+/* ===================== CALENDAR RENDER ===================== */
+function initializeCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    let html = '';
+
+    // Empty corner
+    html += '<div></div>';
+
+    // Day headers
+    weekDays.forEach(day => {
+        html += `
+            <div class="day-header ${day.isToday ? 'today' : ''}">
+                <div class="day-name">${day.name.substr(0, 3).toUpperCase()}</div>
+                <div class="day-date">${day.date}</div>
+            </div>
+        `;
+    });
+
+    // Platform rows
+    calendarData.forEach(platform => {
+        // Platform label
+        html += `
+            <div class="platform-label">
+                <div class="platform-icon ${platform.class}">${platform.icon}</div>
+                <span>${platform.platform}</span>
+            </div>
+        `;
+
+        // Time slots per day
+        weekDays.forEach((day, dayIndex) => {
+            html += '<div class="time-slot" data-platform="' + platform.platform + '" data-day="' + day.name + '">';
+
+            // Sample content placement
+            if (platform.platform === 'LinkedIn' && dayIndex === 0) {
+                html += createContentCard('content_001');
+            } else if (platform.platform === 'LinkedIn' && dayIndex === 1) {
+                html += createContentCard('content_002');
+            } else if (platform.platform === 'Twitter/X' && dayIndex === 2) {
+                html += createContentCard('content_003');
+            } else if (Math.random() > 0.7) {
+                html += '<div class="empty-slot" onclick="createNewContent(this)">+ Add Content</div>';
+            }
+
+            html += '</div>';
+        });
+    });
+
+    grid.innerHTML = html;
+}
+
+function createContentCard(contentId) {
+    const content = contentDatabase[contentId];
+    if (!content) return '';
+
+    let metricsHtml = '';
+    if (content.performance?.predicted) {
+        const p = content.performance.predicted;
         metricsHtml = `
             <div class="card-metrics">
-                ${perf.impressions ? `<span>👁 ${formatNumber(perf.impressions)}</span>` : ''}
-                ${perf.likes ? `<span>❤ ${perf.likes}</span>` : ''}
-                ${perf.retweets ? `<span>🔁 ${perf.retweets}</span>` : ''}
+                <span>Pred. Eng: ${p.engagement}</span>
+                <span>Reach: ${p.reach}</span>
+                ${p.conversion_probability != null ? `<span>Conv: ${(p.conversion_probability*100).toFixed(0)}%</span>` : ''}
+            </div>
+        `;
+    } else if (content.performance?.actual) {
+        const a = content.performance.actual;
+        metricsHtml = `
+            <div class="card-metrics">
+                <span>Impr: ${a.impressions}</span>
+                <span>Likes: ${a.likes}</span>
+                ${a.retweets != null ? `<span>RTs: ${a.retweets}</span>` : ''}
+                ${a.clicks != null ? `<span>Clicks: ${a.clicks}</span>` : ''}
             </div>
         `;
     }
 
-    const statusClass = content.status;
-    const statusLabel = content.status.replace('-', ' ').toUpperCase();
+    const statusClass = content.status === 'ai-suggested' ? 'ai-suggested'
+        : content.status === 'scheduled' ? 'scheduled'
+        : 'published';
+
+    const statusPill = content.status === 'ai-suggested' ? 'status-ai'
+        : content.status === 'scheduled' ? 'status-scheduled'
+        : 'status-published';
+
+    const statusLabel = content.status === 'ai-suggested' ? 'AI'
+        : content.status === 'scheduled' ? 'Scheduled'
+        : 'Published';
+
+    const trending = content.performance?.predicted?.engagement > 800 || content.performance?.actual?.likes > 40;
 
     return `
-        <div class="content-card ${statusClass}" onclick="openDetailPanel('${contentId}')">
-            ${content.research?.confidence ? `<div class="performance-indicator ${content.performance?.actual ? 'trending' : ''}"></div>` : ''}
+        <div class="content-card ${statusClass}" onclick="openDetail('${content.id}')">
+            <span class="performance-indicator ${trending ? 'trending' : ''}"></span>
             <div class="card-header">
-                <span class="card-time">${content.time}</span>
-                <span class="card-status status-${statusClass.split('-')[0]}">${statusLabel}</span>
+                <div class="card-time">${content.time ?? ''}</div>
+                <div class="card-status ${statusPill}">${statusLabel}</div>
             </div>
             <div class="card-title">${content.title}</div>
             ${metricsHtml}
@@ -933,1587 +486,300 @@
     `;
 }
 
-// Open Detail Panel
-function openDetailPanel(contentId) {
-    const panel = document.getElementById('detailPanel');
+/* ===================== DETAIL PANEL ===================== */
+let currentContentId = null;
+
+function openDetail(contentId) {
+    currentContentId = contentId;
+    const detailPanel = document.getElementById('detailPanel');
+    const panelTitle = document.getElementById('panelTitle');
     const panelContent = document.getElementById('panelContent');
-    const content = contentDatabase[contentId];
 
-    if (!content) return;
+    const c = contentDatabase[contentId];
+    if (!c) return;
 
-    let html = `
-        <!-- Content Section -->
-        <div class="detail-section">
-            <div class="section-title">CONTENT</div>
-            <textarea class="content-editor" id="contentEditor">${content.title}</textarea>
+    panelTitle.textContent = c.title;
+
+    const variantsHtml = c.content?.variants ? Object.entries(c.content.variants).map(([platform, v]) => `
+        <div class="variant-card">
+            <div class="variant-header">
+                <span class="variant-platform">${platform.toUpperCase()} • ${v.format || 'post'}</span>
+                <span class="variant-status">Ready</span>
+            </div>
+            ${v.content ? `<div>${sanitize(v.content)}</div>` : ''}
+            ${Array.isArray(v.tweets) ? `<div>${v.tweets.map(t => `• ${sanitize(t)}`).join('<br>')}</div>` : ''}
+            ${Array.isArray(v.hashtags) ? `<div style="margin-top:6px">${v.hashtags.map(h => `<span class="tag">${sanitize(h)}</span>`).join(' ')}</div>` : ''}
         </div>
+    `).join('') : '<div class="variant-card">No platform variants</div>';
 
-        <!-- Platform Variants -->
-        <div class="detail-section">
-            <div class="section-title">PLATFORM VARIANTS</div>
-            <div class="platform-variants">
-    `;
+    const seoHtml = c.content?.variants?.linkedin?.seo ? `
+        <div class="seo-tags">
+            ${c.content.variants.linkedin.seo.keywords.map(k => `<span class="tag">${sanitize(k)}</span>`).join('')}
+        </div>
+        <div style="margin-top:6px; font-size:11px; color:rgba(255,255,255,.7)">${sanitize(c.content.variants.linkedin.seo.meta_desc)}</div>
+    ` : '<div class="seo-tags"><span class="tag">seo</span><span class="tag">tags</span></div>';
 
-    if (content.content?.variants) {
-        Object.entries(content.content.variants).forEach(([platform, variant]) => {
-            html += `
-                <div class="variant-card">
-                    <div class="variant-header">
-                        <span class="variant-platform">${platform.toUpperCase()}</span>
-                        <span class="variant-status">OPTIMIZED</span>
-                    </div>
-                    <div style="font-size: 10px; color: rgba(255,255,255,0.6);">
-                        Format: ${variant.format || 'post'}<br>
-                        ${variant.hashtags ? `Hashtags: ${variant.hashtags.join(', ')}` : ''}
-                    </div>
+    const researchHtml = c.research ? `
+        <div class="research-trail">
+            ${c.research.decision_path.map(step => `
+                <div class="trail-item">
+                    ${sanitize(step)}
                 </div>
-            `;
-        });
-    }
-
-    html += `
-            </div>
-        </div>
-
-        <!-- Research Trail -->
-        <div class="detail-section">
-            <div class="section-title">RESEARCH TRAIL</div>
-            <div class="research-trail">
-    `;
-
-    if (content.research) {
-        html += `
-            <div style="font-size: 11px; margin-bottom: 10px;">
-                Confidence Score: <span style="color: #667eea; font-weight: 600;">${Math.round(content.research.confidence * 100)}%</span>
-            </div>
-        `;
-
-        if (content.research.decision_path) {
-            content.research.decision_path.forEach(decision => {
-                html += `
-                    <div class="trail-item">
-                        ${decision}
-                    </div>
-                `;
-            });
-        }
-
-        if (content.research.sources) {
-            content.research.sources.forEach(source => {
-                html += `
-                    <div class="trail-item">
-                        <div>${source.key_extract}</div>
-                        <div class="trail-source">Source: ${source.title}</div>
-                    </div>
-                `;
-            });
-        }
-    }
-
-    html += `
-            </div>
-        </div>
-
-        <!-- SEO & Keywords -->
-        <div class="detail-section">
-            <div class="section-title">SEO OPTIMIZATION</div>
-            <div class="seo-tags">
-    `;
-
-    if (content.content?.variants?.linkedin?.seo?.keywords) {
-        content.content.variants.linkedin.seo.keywords.forEach(keyword => {
-            html += `<span class="tag">${keyword}</span>`;
-        });
-    }
-
-    html += `
-            </div>
-        </div>
-
-        <!-- Performance Metrics -->
-        <div class="detail-section">
-            <div class="section-title">PERFORMANCE</div>
-            <div class="performance-chart">
-    `;
-
-    if (content.performance?.actual) {
-        const perf = content.performance.actual;
-        const maxVal = Math.max(perf.impressions || 0, perf.likes || 0, perf.clicks || 0);
-        
-        html += `
-            <div class="chart-bar" style="height: ${(perf.impressions/maxVal)*100}%">
-                <span class="chart-label">Views</span>
-            </div>
-            <div class="chart-bar" style="height: ${(perf.likes/maxVal)*100}%">
-                <span class="chart-label">Likes</span>
-            </div>
-            <div class="chart-bar" style="height: ${(perf.clicks/maxVal)*100}%">
-                <span class="chart-label">Clicks</span>
-            </div>
-        `;
-    } else if (content.performance?.predicted) {
-        const pred = content.performance.predicted;
-        html += `
-            <div style="font-size: 11px; color: rgba(255,255,255,0.6);">
-                Predicted Engagement: ${pred.engagement}<br>
-                Predicted Reach: ${formatNumber(pred.reach)}<br>
-                Conversion Probability: ${Math.round((pred.conversion_probability || 0) * 100)}%
-            </div>
-        `;
-    }
-
-    html += `
-            </div>
-        </div>
-
-        <!-- Integration Status -->
-        <div class="detail-section">
-            <div class="section-title">INTEGRATIONS</div>
-            <div class="integration-status">
-    `;
-
-    if (content.integrations) {
-        Object.entries(content.integrations).forEach(([platform, status]) => {
-            html += `
-                <div class="integration-badge ${status.status}">
-                    <span style="font-size: 8px;">●</span> ${platform}
+            `).join('')}
+            ${c.research.sources.map(s => `
+                <div class="trail-item">
+                    <div><strong>${sanitize(s.title)}</strong> — ${sanitize(s.key_extract)}</div>
+                    <div class="trail-source">${sanitize(s.url)}</div>
                 </div>
-            `;
-        });
-    }
+            `).join('')}
+        </div>
+    ` : '<div class="research-trail"><div class="trail-item">No research trail</div></div>';
 
-    html += `
+    const integrationsHtml = c.integrations ? Object.entries(c.integrations).map(([k, v]) => `
+        <div class="integration-badge ${v.status === 'connected' ? 'connected' : 'pending'}">
+            <span>${k}</span> • <span>${v.status}</span>
+        </div>
+    `).join('') : '<div class="integration-badge pending">No integrations</div>';
+
+    const perfBars = buildPerformanceBars(c);
+
+    panelContent.innerHTML = `
+        <div class="detail-section">
+            <div class="section-title">Primary Copy</div>
+            <textarea id="contentEditor" class="content-editor" placeholder="Write or refine copy...">${sanitize(c.content?.body || '')}</textarea>
+        </div>
+
+        <div class="detail-section">
+            <div class="section-title">Platform Variants</div>
+            <div class="platform-variants">${variantsHtml}</div>
+        </div>
+
+        <div class="detail-section">
+            <div class="section-title">SEO</div>
+            ${seoHtml}
+        </div>
+
+        <div class="detail-section">
+            <div class="section-title">Performance</div>
+            <div class="performance-chart" id="perfChart">
+                ${perfBars}
             </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="section-title">Research Trail</div>
+            ${researchHtml}
+        </div>
+
+        <div class="detail-section">
+            <div class="section-title">Integrations</div>
+            <div class="integration-status">${integrationsHtml}</div>
         </div>
     `;
 
-    panelContent.innerHTML = html;
-    panel.classList.remove('hidden');
-    panel.dataset.contentId = contentId;
+    detailPanel.classList.remove('hidden');
 }
 
-// Close Detail Panel
+function buildPerformanceBars(c) {
+    // simple 6-bar mini-history using predicted/actual as seed
+    const values = [];
+    if (c.performance?.actual?.impressions) {
+        const base = c.performance.actual.impressions;
+        for (let i = 5; i >= 0; i--) values.push(Math.max(10, Math.round(base * (0.5 + i*0.1) % 1000)));
+    } else if (c.performance?.predicted?.engagement) {
+        const base = c.performance.predicted.engagement;
+        for (let i = 5; i >= 0; i--) values.push(Math.max(10, Math.round(base * (0.6 + i*0.07) % 900)));
+    } else {
+        for (let i = 0; i < 6; i++) values.push(50 + (i * 10));
+    }
+    const maxV = Math.max(...values, 1);
+    const labels = ['-5', '-4', '-3', '-2', '-1', 'Now'];
+
+    return values.map((v, idx) => {
+        const h = Math.max(8, Math.round((v / maxV) * 95));
+        return `<div class="chart-bar" style="height:${h}%"><div class="chart-label">${labels[idx]}</div></div>`;
+    }).join('');
+}
+
 function closeDetailPanel() {
-    document.getElementById('detailPanel').classList.add('hidden');
-}
+    const detailPanel = document.getElementById('detailPanel');
+    detailPanel.classList.add('hidden');
 
-// Format Numbers
-function formatNumber(num) {
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-}
-
-// Create New Content
-function createNewContent(element) {
-    const platform = element.parentElement.dataset.platform;
-    const day = element.parentElement.dataset.day;
-    
-    const newContentId = 'content_' + Date.now();
-    const newContent = {
-        id: newContentId,
-        title: 'AI Generated: Strategic Insights for ' + platform,
-        platform: platform.toLowerCase().replace('/x', ''),
-        status: 'ai-suggested',
-        time: '2:00 PM',
-        date: day,
-        content: {
-            body: 'AI-generated content based on latest research swarm analysis...',
-            variants: {}
-        },
-        research: {
-            swarm_id: 'swarm_' + Date.now(),
-            confidence: 0.85,
-            sources: [
-                {
-                    title: 'Recent Market Analysis',
-                    key_extract: 'Key insight from research swarm'
-                }
-            ],
-            decision_path: [
-                'Research swarm identified trending topic',
-                'Content gap analysis completed',
-                'Optimal timing calculated'
-            ]
-        },
-        performance: {
-            predicted: {
-                engagement: Math.floor(Math.random() * 1000) + 500,
-                reach: Math.floor(Math.random() * 5000) + 2000,
-                conversion_probability: Math.random() * 0.5
-            }
+    // Persist edit back into database
+    if (currentContentId) {
+        const val = document.getElementById('contentEditor')?.value ?? '';
+        if (contentDatabase[currentContentId]) {
+            contentDatabase[currentContentId].content = contentDatabase[currentContentId].content || {};
+            contentDatabase[currentContentId].content.body = val;
         }
+    }
+    currentContentId = null;
+}
+
+/* ===================== ACTIONS ===================== */
+function assignWriter() {
+    if (!currentContentId) return;
+    const name = prompt('Assign to (name or @handle):', 'Alex');
+    if (name) showNotification(`Assigned ${contentDatabase[currentContentId].title} to ${name}`);
+}
+
+function approveContent() {
+    if (!currentContentId) return;
+    const c = contentDatabase[currentContentId];
+    c.status = 'scheduled';
+    showNotification('Content approved and scheduled');
+
+    // Re-render just the card (simple approach: rebuild calendar)
+    initializeCalendar();
+}
+
+function createNewContent(slotEl) {
+    const platform = slotEl.closest('.time-slot')?.getAttribute('data-platform') || 'Unknown';
+    const day = slotEl.closest('.time-slot')?.getAttribute('data-day') || 'Unknown';
+
+    const id = `content_${Date.now()}`;
+    contentDatabase[id] = {
+        id,
+        title: `New ${platform} Post`,
+        platform: platform.toLowerCase().includes('twitter') ? 'twitter' : platform.toLowerCase(),
+        status: 'ai-suggested',
+        time: '09:00 AM',
+        date: day.substr(0,3),
+        content: { body: `Draft ${platform} copy...` },
+        performance: { predicted: { engagement: 300, reach: 1200, conversion_probability: 0.08 } }
     };
 
-    contentDatabase[newContentId] = newContent;
-    element.outerHTML = createContentCard(newContentId);
-    showNotification('AI content generated from Research Swarm #' + newContent.research.swarm_id.substr(-5));
-    
-    setTimeout(() => {
-        optimizeCalendarLayout();
-    }, 500);
+    slotEl.outerHTML = createContentCard(id);
+    incrementMetric('metricAi', 1);
+    showNotification('New content draft created');
 }
 
-// Optimize Calendar Layout
-function optimizeCalendarLayout() {
-    console.log('AI optimizing calendar layout based on:');
-    console.log('- Platform algorithms');
-    console.log('- Content clustering');
-    console.log('- Audience patterns');
-    console.log('- Competitive analysis');
-    
-    document.querySelectorAll('.content-card').forEach(card => {
-        card.style.transition = 'all 0.5s ease';
-    });
-}
-
-// Approve Content
-function approveContent() {
-    const panel = document.getElementById('detailPanel');
-    const contentId = panel.dataset.contentId;
-    const content = contentDatabase[contentId];
-
-    if (content) {
-        content.status = 'scheduled';
-        initializeCalendar();
-        publishToQueue(content);
-        showNotification('Content approved and scheduled for publishing');
-        closeDetailPanel();
-    }
-}
-
-// Publish to Queue
-function publishToQueue(content) {
-    console.log('Publishing to queue:', content);
-    
-    const integrations = [
-        { platform: 'LinkedIn', endpoint: '/api/linkedin/schedule', method: 'POST' },
-        { platform: 'Buffer', endpoint: '/api/buffer/create-post', method: 'POST' },
-        { platform: 'Hootsuite', endpoint: '/api/hootsuite/schedule', method: 'POST' }
-    ];
-
-    integrations.forEach(integration => {
-        console.log(`Calling ${integration.platform} API:`, integration.endpoint);
-    });
-}
-
-// Assign Writer
-function assignWriter() {
-    const panel = document.getElementById('detailPanel');
-    const contentId = panel.dataset.contentId;
-    const content = contentDatabase[contentId];
-
-    if (content) {
-        const writerBrief = {
-            content_id: contentId,
-            title: content.title,
-            research_context: content.research,
-            brand_guidelines: {
-                tone: 'Professional yet approachable',
-                style: 'Data-driven with storytelling'
-            },
-            seo_requirements: content.content?.variants?.linkedin?.seo,
-            deadline: '48 hours',
-            compensation: '$150',
-            expertise_required: ['B2B Marketing', 'Technology']
-        };
-
-        console.log('Writer brief generated:', writerBrief);
-        sendToWriterPortal(writerBrief);
-        showNotification('Content assigned to writer pool. Matching in progress...');
-    }
-}
-
-// Send to Writer Portal
-function sendToWriterPortal(brief) {
-    console.log('Sending to writer portal:', brief);
-    
-    setTimeout(() => {
-        showNotification('Writer matched: Sarah Chen (98% expertise match)');
-    }, 2000);
-}
-
-// Export Functions
-let selectedExportOption = null;
+/* ===================== EXPORT MODAL ===================== */
+let selectedExport = null;
 
 function openExportModal() {
+    selectedExport = null;
+    document.querySelectorAll('.export-option').forEach(o => o.classList.remove('selected'));
     document.getElementById('exportModal').classList.add('active');
 }
 
 function closeExportModal() {
     document.getElementById('exportModal').classList.remove('active');
-    selectedExportOption = null;
 }
 
-function selectExportOption(element, option) {
-    document.querySelectorAll('.export-option').forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    element.classList.add('selected');
-    selectedExportOption = option;
+function selectExportOption(el, key) {
+    document.querySelectorAll('.export-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedExport = key;
 }
 
 function executeExport() {
-    if (!selectedExportOption) {
-        showNotification('Please select an export option');
+    if (!selectedExport) {
+        showNotification('Choose an export option first');
         return;
     }
 
-    const exportData = prepareExportData();
+    const items = Object.values(contentDatabase).map(c => ({
+        id: c.id,
+        title: c.title,
+        platform: c.platform,
+        status: c.status,
+        time: c.time || '',
+        date: c.date || '',
+        predicted_engagement: c.performance?.predicted?.engagement ?? '',
+        predicted_reach: c.performance?.predicted?.reach ?? '',
+        actual_impressions: c.performance?.actual?.impressions ?? '',
+        actual_likes: c.performance?.actual?.likes ?? ''
+    }));
 
-    switch(selectedExportOption) {
-        case 'csv':
-            exportToCSV(exportData);
-            break;
-        case 'api':
-            exportToAPI(exportData);
-            break;
-        case 'wordpress':
-            exportToWordPress(exportData);
-            break;
+    if (selectedExport === 'csv') {
+        const csv = toCSV(items);
+        downloadText(csv, 'refleqt_calendar.csv', 'text/csv');
+        showNotification('CSV exported');
+    } else if (selectedExport === 'api') {
+        const json = JSON.stringify({ calendar: items }, null, 2);
+        downloadText(json, 'refleqt_calendar.json', 'application/json');
+        showNotification('API JSON exported');
+    } else if (selectedExport === 'wordpress') {
+        const json = JSON.stringify({ wordpress_payload: items.map(i => ({ title: i.title, status: 'draft' })) }, null, 2);
+        downloadText(json, 'refleqt_wp_payload.json', 'application/json');
+        showNotification('WordPress payload prepared');
     }
-
     closeExportModal();
 }
 
-// Prepare Export Data
-function prepareExportData() {
-    const data = [];
-    
-    Object.values(contentDatabase).forEach(content => {
-        data.push({
-            date: content.date,
-            time: content.time,
-            platform: content.platform,
-            title: content.title,
-            status: content.status,
-            content: content.content?.body || '',
-            hashtags: content.content?.variants?.linkedin?.hashtags?.join(', ') || '',
-            seo_keywords: content.content?.variants?.linkedin?.seo?.keywords?.join(', ') || '',
-            research_swarm: content.research?.swarm_id || '',
-            confidence_score: content.research?.confidence || 0,
-            predicted_reach: content.performance?.predicted?.reach || 0
-        });
-    });
-
-    return data;
+function toCSV(rows) {
+    const headers = Object.keys(rows[0] || {});
+    const escape = v => `"${String(v).replace(/"/g, '""')}"`;
+    return [headers.join(','), ...rows.map(r => headers.map(h => escape(r[h] ?? '')).join(','))].join('\n');
 }
 
-// Export to CSV
-function exportToCSV(data) {
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => Object.values(row).map(val => `"${val}"`).join(','));
-    const csv = [headers, ...rows].join('\n');
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+function downloadText(text, filename, mime) {
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'content-calendar-export.csv';
-    a.click();
-    
-    showNotification('Calendar exported to CSV');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0);
 }
 
-// Export to API
-function exportToAPI(data) {
-    const apiPayload = {
-        export_date: new Date().toISOString(),
-        calendar_data: data,
-        metadata: {
-            total_content: data.length,
-            platforms: [...new Set(data.map(d => d.platform))],
-            date_range: {
-                start: '2024-12-23',
-                end: '2024-12-29'
-            }
-        }
-    };
+/* ===================== VIEW SWITCHER ===================== */
+function switchView(view, btn) {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
 
-    console.log('API Export Payload:', JSON.stringify(apiPayload, null, 2));
-    showNotification('Calendar exported to API format (check console)');
-}
-
-// Export to WordPress
-function exportToWordPress(data) {
-    const wpPosts = data
-        .filter(item => item.platform === 'blog')
-        .map(item => ({
-            title: item.title,
-            content: item.content,
-            status: item.status === 'scheduled' ? 'future' : 'draft',
-            date: item.date,
-            categories: ['Marketing', 'AI'],
-            tags: item.seo_keywords.split(', ')
-        }));
-
-    console.log('WordPress Export:', wpPosts);
-    showNotification('Content scheduled in WordPress');
-}
-
-// Show Notification
-function showNotification(message) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.classList.add('show');
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
-}
-
-// View Switching
-function switchView(view) {
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    console.log('Switching to', view, 'view');
-    
-    if (view === 'list') {
-        showListView();
+    if (view === 'week') {
+        initializeCalendar();
+        showNotification('Week view');
     } else if (view === 'month') {
-        showMonthView();
+        // Lightweight placeholder (reuse grid with fewer details)
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '<div style="grid-column: 1 / -1; padding: 20px; text-align:center;">Month view (prototype)</div>';
+        showNotification('Month view (prototype)');
+    } else if (view === 'list') {
+        const grid = document.getElementById('calendarGrid');
+        const items = Object.values(contentDatabase).sort((a,b) => (a.date||'').localeCompare(b.date||''));
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 10px 15px;">
+                ${items.map(c => `
+                    <div class="content-card ${c.status}" style="margin-bottom:10px" onclick="openDetail('${c.id}')">
+                        <div class="card-header">
+                            <div class="card-time">${c.date || ''} ${c.time || ''}</div>
+                            <div class="card-status ${c.status==='ai-suggested'?'status-ai':c.status==='scheduled'?'status-scheduled':'status-published'}">
+                                ${c.status==='ai-suggested'?'AI':c.status==='scheduled'?'Scheduled':'Published'}
+                            </div>
+                        </div>
+                        <div class="card-title">${c.title}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        showNotification('List view');
     }
 }
 
-// List View Implementation
-function showListView() {
-    console.log('List view: Showing all content in a sortable table format');
+/* ===================== UTILITIES ===================== */
+function showNotification(msg) {
+    const n = document.getElementById('notification');
+    n.textContent = msg;
+    n.classList.add('show');
+    setTimeout(() => n.classList.remove('show'), 2400);
 }
 
-// Month View Implementation
-function showMonthView() {
-    console.log('Month view: Showing full month calendar');
+function incrementMetric(id, delta) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const current = parseInt(el.textContent || '0', 10);
+    el.textContent = String(current + delta);
 }
 
-// Real-time Metrics Update
-function updateMetrics() {
-    setInterval(() => {
-        const metrics = document.querySelectorAll('.metric-value');
-        metrics.forEach(metric => {
-            if (metric.classList.contains('metric-performance')) {
-                const current = parseInt(metric.textContent);
-                const change = Math.floor(Math.random() * 5) - 2;
-                metric.textContent = `+${Math.max(0, current + change)}%`;
-            }
-        });
-    }, 10000);
+function sanitize(str) {
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
-// Initialize on Load
+/* ===================== BOOT ===================== */
 document.addEventListener('DOMContentLoaded', () => {
     initializeCalendar();
-    updateMetrics();
-    
-    setInterval(() => {
-        console.log('Checking for new AI suggestions from Research Swarms...');
-    }, 30000);
 });
-
-// Keyboard Shortcuts
-document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-        e.preventDefault();
-        console.log('Quick create new content');
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
-        e.preventDefault();
-        openExportModal();
-    }
-});
-        if (content.performance?.actual) {
-            const perf = content.performance.actual;
-            metricsHtml = `
-                <div class="card-metrics">
-                    ${perf.impressions ? `<span>👁 ${formatNumber(perf.impressions)}</span>` : ''}
-                    ${perf.likes ? `<span>❤ ${perf.likes}</span>` : ''}
-                    ${perf.retweets ? `<span>🔁 ${perf.retweets}</span>` : ''}
-                </div>
-            `;
-        }
-
-        const statusClass = content.status;
-        const statusLabel = content.status.replace('-', ' ').toUpperCase();
-
-        return `
-            <div class="content-card ${statusClass}" onclick="openDetailPanel('${contentId}')">
-                ${content.research?.confidence ? `<div class="performance-indicator ${content.performance?.actual ? 'trending' : ''}"></div>` : ''}
-                <div class="card-header">
-                    <span class="card-time">${content.time}</span>
-                    <span class="card-status status-${statusClass.split('-')[0]}">${statusLabel}</span>
-                </div>
-                <div class="card-title">${content.title}</div>
-                ${metricsHtml}
-            </div>
-        `;
-    }
-
-    // Open Detail Panel
-    function openDetailPanel(contentId) {
-        const panel = document.getElementById('detailPanel');
-        const panelContent = document.getElementById('panelContent');
-        const content = contentDatabase[contentId];
-
-        if (!content) return;
-
-        let html = `
-            <!-- Content Section -->
-            <div class="detail-section">
-                <div class="section-title">CONTENT</div>
-                <textarea class="content-editor" id="contentEditor">${content.title}</textarea>
-            </div>
-
-            <!-- Platform Variants -->
-            <div class="detail-section">
-                <div class="section-title">PLATFORM VARIANTS</div>
-                <div class="platform-variants">
-        `;
-
-        if (content.content?.variants) {
-            Object.entries(content.content.variants).forEach(([platform, variant]) => {
-                html += `
-                    <div class="variant-card">
-                        <div class="variant-header">
-                            <span class="variant-platform">${platform.toUpperCase()}</span>
-                            <span class="variant-status">OPTIMIZED</span>
-                        </div>
-                        <div style="font-size: 10px; color: rgba(255,255,255,0.6);">
-                            Format: ${variant.format || 'post'}<br>
-                            ${variant.hashtags ? `Hashtags: ${variant.hashtags.join(', ')}` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        html += `
-                </div>
-            </div>
-
-            <!-- Research Trail -->
-            <div class="detail-section">
-                <div class="section-title">RESEARCH TRAIL</div>
-                <div class="research-trail">
-        `;
-
-        if (content.research) {
-            html += `
-                <div style="font-size: 11px; margin-bottom: 10px;">
-                    Confidence Score: <span style="color: #667eea; font-weight: 600;">${Math.round(content.research.confidence * 100)}%</span>
-                </div>
-            `;
-
-            if (content.research.decision_path) {
-                content.research.decision_path.forEach(decision => {
-                    html += `
-                        <div class="trail-item">
-                            ${decision}
-                        </div>
-                    `;
-                });
-            }
-
-            if (content.research.sources) {
-                content.research.sources.forEach(source => {
-                    html += `
-                        <div class="trail-item">
-                            <div>${source.key_extract}</div>
-                            <div class="trail-source">Source: ${source.title}</div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        html += `
-                </div>
-            </div>
-
-            <!-- SEO & Keywords -->
-            <div class="detail-section">
-                <div class="section-title">SEO OPTIMIZATION</div>
-                <div class="seo-tags">
-        `;
-
-        if (content.content?.variants?.linkedin?.seo?.keywords) {
-            content.content.variants.linkedin.seo.keywords.forEach(keyword => {
-                html += `<span class="tag">${keyword}</span>`;
-            });
-        }
-
-        html += `
-                </div>
-            </div>
-
-            <!-- Performance Metrics -->
-            <div class="detail-section">
-                <div class="section-title">PERFORMANCE</div>
-                <div class="performance-chart">
-        `;
-
-        if (content.performance?.actual) {
-            const perf = content.performance.actual;
-            const maxVal = Math.max(perf.impressions || 0, perf.likes || 0, perf.clicks || 0);
-            
-            html += `
-                <div class="chart-bar" style="height: ${(perf.impressions/maxVal)*100}%">
-                    <span class="chart-label">Views</span>
-                </div>
-                <div class="chart-bar" style="height: ${(perf.likes/maxVal)*100}%">
-                    <span class="chart-label">Likes</span>
-                </div>
-                <div class="chart-bar" style="height: ${(perf.clicks/maxVal)*100}%">
-                    <span class="chart-label">Clicks</span>
-                </div>
-            `;
-        } else if (content.performance?.predicted) {
-            const pred = content.performance.predicted;
-            html += `
-                <div style="font-size: 11px; color: rgba(255,255,255,0.6);">
-                    Predicted Engagement: ${pred.engagement}<br>
-                    Predicted Reach: ${formatNumber(pred.reach)}<br>
-                    Conversion Probability: ${Math.round(pred.conversion_probability * 100)}%
-                </div>
-            `;
-        }
-
-        html += `
-                </div>
-            </div>
-
-            <!-- Integration Status -->
-            <div class="detail-section">
-                <div class="section-title">INTEGRATIONS</div>
-                <div class="integration-status">
-        `;
-
-        if (content.integrations) {
-            Object.entries(content.integrations).forEach(([platform, status]) => {
-                html += `
-                    <div class="integration-badge ${status.status}">
-                        <span style="font-size: 8px;">●</span> ${platform}
-                    </div>
-                `;
-            });
-        }
-
-        html += `
-                </div>
-            </div>
-        `;
-
-        panelContent.innerHTML = html;
-        panel.classList.remove('hidden');
-
-        // Store current content ID for actions
-        panel.dataset.contentId = contentId;
-    }
-
-    // Close Detail Panel
-    function closeDetailPanel() {
-        document.getElementById('detailPanel').classList.add('hidden');
-    }
-
-    // Format Numbers
-    function formatNumber(num) {
-        if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
-        return num.toString();
-    }
-
-    // Create New Content
-    function createNewContent(element) {
-        const platform = element.parentElement.dataset.platform;
-        const day = element.parentElement.dataset.day;
-        
-        // Simulate AI content generation from Research Swarm
-        const newContentId = 'content_' + Date.now();
-        const newContent = {
-            id: newContentId,
-            title: 'AI Generated: Strategic Insights for ' + platform,
-            platform: platform.toLowerCase().replace('/x', ''),
-            status: 'ai-suggested',
-            time: '2:00 PM',
-            date: day,
-            content: {
-                body: 'AI-generated content based on latest research swarm analysis...',
-                variants: {}
-            },
-            research: {
-                swarm_id: 'swarm_' + Date.now(),
-                confidence: 0.85,
-                sources: [
-                    {
-                        title: 'Recent Market Analysis',
-                        key_extract: 'Key insight from research swarm'
-                    }
-                ],
-                decision_path: [
-                    'Research swarm identified trending topic',
-                    'Content gap analysis completed',
-                    'Optimal timing calculated'
-                ]
-            },
-            performance: {
-                predicted: {
-                    engagement: Math.floor(Math.random() * 1000) + 500,
-                    reach: Math.floor(Math.random() * 5000) + 2000,
-                    conversion_probability: Math.random() * 0.5
-                }
-            }
-        };
-
-        // Add to database
-        contentDatabase[newContentId] = newContent;
-
-        // Replace empty slot with new card
-        element.outerHTML = createContentCard(newContentId);
-
-        // Show notification
-        showNotification('AI content generated from Research Swarm #' + newContent.research.swarm_id.substr(-5));
-
-        // Simulate calendar reflow
-        setTimeout(() => {
-            optimizeCalendarLayout();
-        }, 500);
-    }
-
-    // Optimize Calendar Layout (AI-driven reorganization)
-    function optimizeCalendarLayout() {
-        console.log('AI optimizing calendar layout based on:');
-        console.log('- Platform algorithms');
-        console.log('- Content clustering');
-        console.log('- Audience patterns');
-        console.log('- Competitive analysis');
-        
-        // Visual feedback
-        document.querySelectorAll('.content-card').forEach(card => {
-            card.style.transition = 'all 0.5s ease';
-            // Simulate reflow animation
-        });
-    }
-
-    // Approve Content
-    function approveContent() {
-        const panel = document.getElementById('detailPanel');
-        const contentId = panel.dataset.contentId;
-        const content = contentDatabase[contentId];
-
-        if (content) {
-            content.status = 'scheduled';
-            
-            // Update card in calendar
-            initializeCalendar();
-            
-            // Send to publishing queue
-            publishToQueue(content);
-            
-            showNotification('Content approved and scheduled for publishing');
-            closeDetailPanel();
-        }
-    }
-
-    // Publish to Queue (Integration with external platforms)
-    function publishToQueue(content) {
-        console.log('Publishing to queue:', content);
-        
-        // Simulate API calls to integrated platforms
-        const integrations = [
-            { platform: 'LinkedIn', endpoint: '/api/linkedin/schedule', method: 'POST' },
-            { platform: 'Buffer', endpoint: '/api/buffer/create-post', method: 'POST' },
-            { platform: 'Hootsuite', endpoint: '/api/hootsuite/schedule', method: 'POST' }
-        ];
-
-        integrations.forEach(integration => {
-            console.log(`Calling ${integration.platform} API:`, integration.endpoint);
-            // In production, actual API calls would be made here
-        });
-    }
-
-    // Assign Writer
-    function assignWriter() {
-        const panel = document.getElementById('detailPanel');
-        const contentId = panel.dataset.contentId;
-        const content = contentDatabase[contentId];
-
-        if (content) {
-            // Generate writer brief
-            const writerBrief = {
-                content_id: contentId,
-                title: content.title,
-                research_context: content.research,
-                brand_guidelines: {
-                    tone: 'Professional yet approachable',
-                    style: 'Data-driven with storytelling'
-                },
-                seo_requirements: content.content?.variants?.linkedin?.seo,
-                deadline: '48 hours',
-                compensation: '$150',
-                expertise_required: ['B2B Marketing', 'Technology']
-            };
-
-            console.log('Writer brief generated:', writerBrief);
-            
-            // Send to writer portal
-            sendToWriterPortal(writerBrief);
-            
-            showNotification('Content assigned to writer pool. Matching in progress...');
-        }
-    }
-
-    // Send to Writer Portal
-    function sendToWriterPortal(brief) {
-        console.log('Sending to writer portal:', brief);
-        
-        // Simulate writer matching algorithm
-        setTimeout(() => {
-            showNotification('Writer matched: Sarah Chen (98% expertise match)');
-        }, 2000);
-    }
-
-    // Export Functions
-    let selectedExportOption = null;
-
-    function openExportModal() {
-        document.getElementById('exportModal').classList.add('active');
-    }
-
-    function closeExportModal() {
-        document.getElementById('exportModal').classList.remove('active');
-        selectedExportOption = null;
-    }
-
-    function selectExportOption(element, option) {
-        document.querySelectorAll('.export-option').forEach(opt => {
-            opt.classList.remove('selected');
-        });
-        element.classList.add('selected');
-        selectedExportOption = option;
-    }
-
-    function executeExport() {
-        if (!selectedExportOption) {
-            showNotification('Please select an export option');
-            return;
-        }
-
-        const exportData = prepareExportData();
-
-        switch(selectedExportOption) {
-            case 'csv':
-                exportToCSV(exportData);
-                break;
-            case 'api':
-                exportToAPI(exportData);
-                break;
-            case 'wordpress':
-                exportToWordPress(exportData);
-                break;
-        }
-
-        closeExportModal();
-    }
-
-    // Prepare Export Data
-    function prepareExportData() {
-        const data = [];
-        
-        Object.values(contentDatabase).forEach(content => {
-            data.push({
-                date: content.date,
-                time: content.time,
-                platform: content.platform,
-                title: content.title,
-                status: content.status,
-                content: content.content?.body || '',
-                hashtags: content.content?.variants?.linkedin?.hashtags?.join(', ') || '',
-                seo_keywords: content.content?.variants?.linkedin?.seo?.keywords?.join(', ') || '',
-                research_swarm: content.research?.swarm_id || '',
-                confidence_score: content.research?.confidence || 0,
-                predicted_reach: content.performance?.predicted?.reach || 0
-            });
-        });
-
-        return data;
-    }
-
-    // Export to CSV
-    function exportToCSV(data) {
-        const headers = Object.keys(data[0]).join(',');
-        const rows = data.map(row => Object.values(row).map(val => `"${val}"`).join(','));
-        const csv = [headers, ...rows].join('\n');
-        
-        // Create download link
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'content-calendar-export.csv';
-        a.click();
-        
-        showNotification('Calendar exported to CSV');
-    }
-
-    // Export to API
-    function exportToAPI(data) {
-        const apiPayload = {
-            export_date: new Date().toISOString(),
-            calendar_data: data,
-            metadata: {
-                total_content: data.length,
-                platforms: [...new Set(data.map(d => d.platform))],
-                date_range: {
-                    start: '2024-12-23',
-                    end: '2024-12-29'
-                }
-            }
-        };
-
-        console.log('API Export Payload:', JSON.stringify(apiPayload, null, 2));
-        
-        // In production, send to actual API endpoint
-        // fetch('/api/export', { method: 'POST', body: JSON.stringify(apiPayload) })
-        
-        showNotification('Calendar exported to API format (check console)');
-    }
-
-    // Export to WordPress
-    function exportToWordPress(data) {
-        const wpPosts = data
-            .filter(item => item.platform === 'blog')
-            .map(item => ({
-                title: item.title,
-                content: item.content,
-                status: item.status === 'scheduled' ? 'future' : 'draft',
-                date: item.date,
-                categories: ['Marketing', 'AI'],
-                tags: item.seo_keywords.split(', ')
-            }));
-
-        console.log('WordPress Export:', wpPosts);
-        
-        // In production, use WordPress REST API
-        // wpPosts.forEach(post => {
-        //     fetch('https://yoursite.com/wp-json/wp/v2/posts', {
-        //         method: 'POST',
-        //         headers: { 'Authorization': 'Bearer YOUR_TOKEN' },
-        //         body: JSON.stringify(post)
-        //     });
-        // });
-        
-        showNotification('Content scheduled in WordPress');
-    }
-
-    // Show Notification
-    function showNotification(message) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.classList.add('show');
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-
-    // View Switching
-    function switchView(view) {
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        
-        console.log('Switching to', view, 'view');
-        
-        // In production, implement different view layouts
-        if (view === 'list') {
-            showListView();
-        } else if (view === 'month') {
-            showMonthView();
-        }
-    }
-
-    // List View Implementation
-    function showListView() {
-        console.log('List view: Showing all content in a sortable table format');
-        // Implementation would replace calendar grid with table
-    }
-
-    // Month View Implementation
-    function showMonthView() {
-        console.log('Month view: Showing full month calendar');
-        // Implementation would show month grid
-    }
-
-    // Real-time Metrics Update
-    function updateMetrics() {
-        // Simulate real-time metrics updates
-        setInterval(() => {
-            const metrics = document.querySelectorAll('.metric-value');
-            metrics.forEach(metric => {
-                if (metric.classList.contains('metric-performance')) {
-                    const current = parseInt(metric.textContent);
-                    const change = Math.floor(Math.random() * 5) - 2;
-                    metric.textContent = `+${current + change}%`;
-                }
-            });
-        }, 10000);
-    }
-
-    // Initialize on Load
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeCalendar();
-        updateMetrics();
-        
-        // Simulate incoming AI suggestions
-        setInterval(() => {
-            console.log('Checking for new AI suggestions from Research Swarms...');
-        }, 30000);
-    });
-
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-            e.preventDefault();
-            console.log('Quick create new content');
-        }
-        if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
-            e.preventDefault();
-            openExportModal();
-        }
-    });
-
-    // WebSocket Integration for Real-time Updates
-    class CalendarWebSocket {
-        constructor() {
-            this.ws = null;
-            this.reconnectAttempts = 0;
-            this.connect();
-        }
-
-        connect() {
-            // In production, use actual WebSocket URL
-            console.log('Connecting to WebSocket for real-time updates...');
-            
-            // Simulate WebSocket connection
-            this.simulateMessages();
-        }
-
-        simulateMessages() {
-            // Simulate incoming messages
-            setInterval(() => {
-                const messageTypes = ['content_update', 'performance_update', 'swarm_complete', 'writer_update'];
-                const type = messageTypes[Math.floor(Math.random() * messageTypes.length)];
-                
-                this.handleMessage({
-                    type: type,
-                    data: this.generateMockData(type)
-                });
-            }, 15000);
-        }
-
-        generateMockData(type) {
-            switch(type) {
-                case 'swarm_complete':
-                    return {
-                        swarm_id: 'swarm_' + Date.now(),
-                        insights: 3,
-                        content_suggestions: 2,
-                        confidence: 0.89
-                    };
-                case 'performance_update':
-                    return {
-                        content_id: 'content_003',
-                        metrics: {
-                            impressions: Math.floor(Math.random() * 1000) + 1000,
-                            engagement: Math.floor(Math.random() * 100) + 50
-                        }
-                    };
-                case 'writer_update':
-                    return {
-                        content_id: 'content_001',
-                        writer: 'Sarah Chen',
-                        status: 'in_progress',
-                        completion: 65
-                    };
-                default:
-                    return {};
-            }
-        }
-
-        handleMessage(message) {
-            console.log('WebSocket message received:', message);
-            
-            switch(message.type) {
-                case 'swarm_complete':
-                    this.handleSwarmComplete(message.data);
-                    break;
-                case 'performance_update':
-                    this.handlePerformanceUpdate(message.data);
-                    break;
-                case 'writer_update':
-                    this.handleWriterUpdate(message.data);
-                    break;
-            }
-        }
-
-        handleSwarmComplete(data) {
-            showNotification(`Research Swarm completed: ${data.insights} insights found`);
-            
-            // Add new AI suggestions to calendar
-            if (data.content_suggestions > 0) {
-                setTimeout(() => {
-                    showNotification(`${data.content_suggestions} new content suggestions added`);
-                    // Refresh calendar to show new suggestions
-                    initializeCalendar();
-                }, 1000);
-            }
-        }
-
-        handlePerformanceUpdate(data) {
-            // Update content performance in real-time
-            if (contentDatabase[data.content_id]) {
-                contentDatabase[data.content_id].performance.actual = data.metrics;
-                
-                // Update UI if detail panel is open
-                const panel = document.getElementById('detailPanel');
-                if (panel.dataset.contentId === data.content_id) {
-                    openDetailPanel(data.content_id);
-                }
-            }
-        }
-
-        handleWriterUpdate(data) {
-            showNotification(`Writer update: ${data.writer} is ${data.completion}% complete`);
-        }
-    }
-
-    // Initialize WebSocket
-    const calendarWS = new CalendarWebSocket();
-
-    // Platform Publishing Manager
-    class PlatformPublisher {
-        constructor() {
-            this.platforms = {
-                linkedin: new LinkedInPublisher(),
-                twitter: new TwitterPublisher(),
-                instagram: new InstagramPublisher(),
-                youtube: new YouTubePublisher(),
-                wordpress: new WordPressPublisher()
-            };
-        }
-
-        async publish(content, platform) {
-            const publisher = this.platforms[platform];
-            if (!publisher) {
-                throw new Error(`Platform ${platform} not supported`);
-            }
-
-            // Pre-flight validation
-            const validation = await publisher.validate(content);
-            if (!validation.valid) {
-                throw new Error(validation.errors.join(', '));
-            }
-
-            // Transform content for platform
-            const transformed = await publisher.transform(content);
-
-            // Add tracking
-            transformed.tracking = this.generateTracking(content.id, platform);
-
-            // Publish
-            const result = await publisher.publish(transformed);
-
-            // Update calendar
-            this.updateCalendarStatus(content.id, 'published', result);
-
-            return result;
-        }
-
-        generateTracking(contentId, platform) {
-            return {
-                utm_source: platform,
-                utm_medium: 'social',
-                utm_campaign: `refleqt_${contentId}`,
-                tracking_pixels: ['GA4', 'Facebook', 'LinkedIn']
-            };
-        }
-
-        updateCalendarStatus(contentId, status, result) {
-            if (contentDatabase[contentId]) {
-                contentDatabase[contentId].status = status;
-                contentDatabase[contentId].publishResult = result;
-                initializeCalendar();
-            }
-        }
-    }
-
-    // Platform-specific Publishers
-    class LinkedInPublisher {
-        async validate(content) {
-            const errors = [];
-            
-            if (content.content?.body?.length > 3000) {
-                errors.push('Content exceeds LinkedIn character limit');
-            }
-            
-            if (!content.content?.variants?.linkedin) {
-                errors.push('LinkedIn variant not found');
-            }
-
-            return { valid: errors.length === 0, errors };
-        }
-
-        async transform(content) {
-            return {
-                text: content.content.variants.linkedin.content,
-                hashtags: content.content.variants.linkedin.hashtags,
-                media: content.media || null,
-                visibility: 'PUBLIC',
-                publishTime: this.calculateOptimalTime(content)
-            };
-        }
-
-        calculateOptimalTime(content) {
-            // Algorithm to determine best posting time
-            const optimalHours = [10, 14, 17]; // 10 AM, 2 PM, 5 PM
-            const hour = optimalHours[Math.floor(Math.random() * optimalHours.length)];
-            return new Date().setHours(hour, 0, 0, 0);
-        }
-
-        async publish(content) {
-            console.log('Publishing to LinkedIn:', content);
-            // Actual API call would go here
-            return { success: true, postId: 'li_' + Date.now() };
-        }
-    }
-
-    class TwitterPublisher {
-        async validate(content) {
-            const errors = [];
-            
-            if (content.content?.variants?.twitter?.tweets) {
-                content.content.variants.twitter.tweets.forEach((tweet, i) => {
-                    if (tweet.length > 280) {
-                        errors.push(`Tweet ${i + 1} exceeds character limit`);
-                    }
-                });
-            }
-
-            return { valid: errors.length === 0, errors };
-        }
-
-        async transform(content) {
-            return {
-                thread: content.content.variants.twitter.tweets,
-                media: content.media || [],
-                replySettings: 'everyone'
-            };
-        }
-
-        async publish(content) {
-            console.log('Publishing to Twitter/X:', content);
-            return { success: true, tweetId: 'tw_' + Date.now() };
-        }
-    }
-
-    class InstagramPublisher {
-        async validate(content) {
-            const errors = [];
-            
-            if (!content.media || content.media.length === 0) {
-                errors.push('Instagram requires at least one image or video');
-            }
-            
-            if (content.content?.body?.length > 2200) {
-                errors.push('Caption exceeds Instagram limit');
-            }
-
-            return { valid: errors.length === 0, errors };
-        }
-
-        async transform(content) {
-            return {
-                caption: content.content.body,
-                media: content.media,
-                hashtags: this.extractHashtags(content.content.body),
-                location: content.location || null
-            };
-        }
-
-        extractHashtags(text) {
-            return text.match(/#\w+/g) || [];
-        }
-
-        async publish(content) {
-            console.log('Publishing to Instagram:', content);
-            return { success: true, postId: 'ig_' + Date.now() };
-        }
-    }
-
-    class YouTubePublisher {
-        async validate(content) {
-            const errors = [];
-            
-            if (!content.video) {
-                errors.push('YouTube requires a video file');
-            }
-            
-            if (!content.title || content.title.length > 100) {
-                errors.push('Invalid title length');
-            }
-
-            return { valid: errors.length === 0, errors };
-        }
-
-        async transform(content) {
-            return {
-                title: content.title,
-                description: content.content.body,
-                tags: content.tags || [],
-                category: content.category || 'Education',
-                privacy: 'public',
-                thumbnail: content.thumbnail || null
-            };
-        }
-
-        async publish(content) {
-            console.log('Publishing to YouTube:', content);
-            return { success: true, videoId: 'yt_' + Date.now() };
-        }
-    }
-
-    class WordPressPublisher {
-        async validate(content) {
-            const errors = [];
-            
-            if (!content.title) {
-                errors.push('Post requires a title');
-            }
-            
-            if (!content.content?.body) {
-                errors.push('Post requires content');
-            }
-
-            return { valid: errors.length === 0, errors };
-        }
-
-        async transform(content) {
-            return {
-                title: content.title,
-                content: this.addSEOOptimizations(content.content.body, content.seo),
-                status: 'draft',
-                categories: content.categories || ['Uncategorized'],
-                tags: content.tags || [],
-                featured_media: content.featuredImage || null,
-                meta: {
-                    description: content.seo?.meta_desc || '',
-                    keywords: content.seo?.keywords || []
-                }
-            };
-        }
-
-        addSEOOptimizations(content, seo) {
-            // Add schema markup and SEO optimizations
-            let optimized = content;
-            
-            if (seo?.keywords) {
-                // Ensure keywords are naturally distributed
-                console.log('Optimizing for keywords:', seo.keywords);
-            }
-            
-            return optimized;
-        }
-
-        async publish(content) {
-            console.log('Publishing to WordPress:', content);
-            return { success: true, postId: 'wp_' + Date.now() };
-        }
-    }
-
-    // Initialize Platform Publisher
-    const platformPublisher = new PlatformPublisher();
-
-    // Content Intelligence Engine
-    class ContentIntelligence {
-        constructor() {
-            this.swarmData = {};
-            this.performanceHistory = {};
-        }
-
-        async analyzeSwarmInsights(swarmId) {
-            // Simulate analysis of research swarm data
-            return {
-                topInsights: [
-                    'Competitor launched new AI feature',
-                    'Market trend: Voice search optimization',
-                    'Audience engagement peaks at 10 AM'
-                ],
-                contentOpportunities: [
-                    {
-                        title: 'How Voice Search is Changing SEO in 2025',
-                        confidence: 0.92,
-                        urgency: 'high',
-                        estimatedReach: 5000
-                    },
-                    {
-                        title: 'AI Tools Comparison: Us vs Competitors',
-                        confidence: 0.87,
-                        urgency: 'medium',
-                        estimatedReach: 3500
-                    }
-                ],
-                recommendedActions: [
-                    'Schedule voice search content for next week',
-                    'Create comparison infographic',
-                    'Update SEO strategy documentation'
-                ]
-            };
-        }
-
-        async generateContentFromInsight(insight) {
-            // Transform research insight into content piece
-            return {
-                title: insight.title,
-                content: {
-                    body: await this.generateContentBody(insight),
-                    variants: await this.generatePlatformVariants(insight)
-                },
-                seo: await this.generateSEO(insight),
-                hashtags: await this.generateHashtags(insight),
-                scheduleSuggestion: await this.suggestOptimalSchedule(insight)
-            };
-        }
-
-        async generateContentBody(insight) {
-            // AI content generation based on insight
-            return `AI-generated content based on: ${insight.title}...`;
-        }
-
-        async generatePlatformVariants(insight) {
-            return {
-                linkedin: {
-                    content: 'LinkedIn-optimized version...',
-                    hashtags: ['#B2B', '#AI', '#Marketing']
-                },
-                twitter: {
-                    tweets: [
-                        'Tweet 1 of thread...',
-                        'Tweet 2 of thread...'
-                    ]
-                }
-            };
-        }
-
-        async generateSEO(insight) {
-            return {
-                keywords: ['primary keyword', 'secondary keyword'],
-                meta_desc: 'SEO-optimized meta description',
-                schema_markup: {
-                    '@type': 'Article',
-                    headline: insight.title
-                }
-            };
-        }
-
-        async generateHashtags(insight) {
-            // Analyze trending hashtags and relevance
-            return ['#Trending1', '#Relevant2', '#Niche3'];
-        }
-
-        async suggestOptimalSchedule(insight) {
-            // Analyze platform algorithms and audience behavior
-            return {
-                platform: 'linkedin',
-                date: '2024-12-26',
-                time: '10:00 AM',
-                reason: 'Peak audience engagement window'
-            };
-        }
-
-        async predictPerformance(content) {
-            // ML model for performance prediction
-            return {
-                engagement: Math.floor(Math.random() * 1000) + 500,
-                reach: Math.floor(Math.random() * 5000) + 2000,
-                conversion_probability: Math.random() * 0.3 + 0.1
-            };
-        }
-    }
-
-    // Initialize Content Intelligence
-    const contentIntelligence = new ContentIntelligence();
-
-    // Writer Management System
-    class WriterManagement {
-        constructor() {
-            this.writers = [
-                { id: 'w001', name: 'Sarah Chen', expertise: ['B2B', 'Technology'], rating: 4.8, availability: true },
-                { id: 'w002', name: 'Michael Ross', expertise: ['Finance', 'AI'], rating: 4.6, availability: true },
-                { id: 'w003', name: 'Elena Martinez', expertise: ['Marketing', 'Social Media'], rating: 4.9, availability: false }
-            ];
-        }
-
-        async matchWriter(brief) {
-            // Algorithm to match writer based on expertise and availability
-            const matches = this.writers
-                .filter(w => w.availability)
-                .map(writer => ({
-                    ...writer,
-                    matchScore: this.calculateMatchScore(writer, brief)
-                }))
-                .sort((a, b) => b.matchScore - a.matchScore);
-
-            return matches[0];
-        }
-
-        calculateMatchScore(writer, brief) {
-            let score = writer.rating * 20; // Base score from rating
-            
-            // Add points for expertise match
-            brief.expertise_required?.forEach(req => {
-                if (writer.expertise.includes(req)) {
-                    score += 10;
-                }
-            });
-            
-            return score;
-        }
-
-        async assignContent(contentId, writerId) {
-            const assignment = {
-                content_id: contentId,
-                writer_id: writerId,
-                assigned_at: new Date().toISOString(),
-                deadline: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-                status: 'assigned',
-                brief: this.generateBrief(contentId)
-            };
-
-            console.log('Content assigned:', assignment);
-            return assignment;
-        }
-
-        generateBrief(contentId) {
-            const content = contentDatabase[contentId];
-            return {
-                title: content.title,
-                research_trail: content.research,
-                brand_voice: 'Professional yet approachable',
-                word_count: 800,
-                seo_requirements: content.content?.variants?.linkedin?.seo,
-                reference_materials: content.research?.sources
-            };
-        }
-    }
-
-    // Initialize Writer Management
-    const writerManagement = new WriterManagement();
 </script>
-```
-
 </body>
 </html>
