@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Swarms - TaskFlow</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Research Swarms - Refleqt Portal</title>
     <style>
         * {
             margin: 0;
@@ -15,23 +12,102 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
             color: #2d3748;
+            line-height: 1.6;
         }
 
-        /* Main Content - No Sidebar */
         .main-content {
             padding: 30px;
-            width: 100%;
+            min-height: 100vh;
         }
 
+        /* Sub-Navigation */
+        .sub-navigation {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sub-nav-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .sub-nav-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .sub-nav-toggle {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .sub-nav-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .sub-nav-content {
+            max-height: 200px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .sub-nav-content.collapsed {
+            max-height: 0;
+        }
+
+        .sub-nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sub-nav-tab {
+            padding: 12px 16px;
+            text-align: center;
+            cursor: pointer;
+            border-right: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .sub-nav-tab:last-child {
+            border-right: none;
+        }
+
+        .sub-nav-tab:hover {
+            background: #f7fafc;
+            color: #667eea;
+        }
+
+        .sub-nav-tab.active {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Header */
         .swarms-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             border-radius: 16px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
         }
@@ -68,45 +144,56 @@
             z-index: 1;
         }
 
-        .swarms-layout {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-        }
-
-        /* Swarm Creator */
-        .swarm-creator {
+        /* Content Area */
+        .content-area {
             background: white;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            min-height: 600px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Dashboard Section */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
             margin-bottom: 30px;
         }
 
-        .creator-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+        .swarm-creator {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         .creator-title {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
             color: #2d3748;
         }
 
         .query-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 16px;
             resize: vertical;
-            min-height: 120px;
+            min-height: 100px;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
 
         .query-input:focus {
@@ -115,132 +202,81 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .swarm-types {
+        .swarm-types-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .swarm-type {
-            padding: 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            background: white;
-        }
-
-        .swarm-type:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .swarm-type.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .swarm-type-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .swarm-type-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #2d3748;
-        }
-
-        .swarm-type-desc {
-            font-size: 12px;
-            color: #718096;
-        }
-
-        .suggestions {
-            margin-bottom: 24px;
-        }
-
-        .suggestions-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 12px;
-        }
-
-        .suggestion-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .suggestion-btn {
-            padding: 8px 16px;
-            background: #f7fafc;
+        .swarm-type-btn {
+            padding: 12px;
             border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #4a5568;
+            border-radius: 8px;
+            background: white;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 13px;
         }
 
-        .suggestion-btn:hover {
-            background: #667eea;
-            color: white;
+        .swarm-type-btn:hover {
             border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
         }
 
-        .launch-button {
+        .swarm-type-btn.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .launch-btn {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .launch-button:hover {
+        .launch-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .launch-button:disabled {
+        .launch-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         /* Active Swarms */
         .active-swarms {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        .active-swarms-title {
-            font-size: 20px;
-            font-weight: bold;
+        .swarms-list-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
             color: #2d3748;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .swarm-item {
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.3s;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
@@ -253,21 +289,24 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #2d3748;
+            font-size: 14px;
         }
 
-        .swarm-status {
+        .swarm-meta {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 14px;
+            font-size: 12px;
             color: #718096;
+            margin-bottom: 8px;
         }
 
         .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         .status-badge.running {
@@ -285,24 +324,40 @@
             color: #c05621;
         }
 
-        /* Control Panel */
-        .control-panel {
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Stats Panel */
+        .stats-panel {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .swarm-stats {
+        .stats-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
         }
 
         .stats-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             color: #2d3748;
         }
 
@@ -314,73 +369,108 @@
 
         .stat-item {
             text-align: center;
-            padding: 12px;
+            padding: 10px;
             background: #f7fafc;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #2d3748;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 10px;
             color: #718096;
             text-transform: uppercase;
         }
 
-        .swarm-templates {
-            background: white;
+        /* Templates Section */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .template-card {
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .template-item {
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            transition: all 0.3s ease;
             cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .template-item:hover {
+        .template-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .template-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .template-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .template-desc {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .template-example {
+            font-size: 12px;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 6px;
+            font-style: italic;
+        }
+
+        /* Archive Section */
+        .archive-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .filter-btn:hover {
             border-color: #667eea;
             background: rgba(102, 126, 234, 0.02);
         }
 
-        .template-title {
-            font-weight: 600;
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
             font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .template-description {
-            font-size: 12px;
-            color: #718096;
-        }
-
-        .research-insights {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .insight-item {
-            padding: 12px;
-            border-left: 4px solid #48bb78;
-            background: #f0fff4;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 12px;
-        }
-
-        .insight-text {
-            font-size: 14px;
-            color: #2d3748;
         }
 
         /* Modal */
@@ -390,11 +480,19 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
         }
 
         .modal-content {
@@ -405,6 +503,12 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
         }
 
         .modal-header {
@@ -412,6 +516,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 16px;
         }
 
         .modal-title {
@@ -428,418 +534,1231 @@
             color: #718096;
         }
 
+        .results-section {
+            margin-bottom: 24px;
+        }
+
+        .results-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .finding-item {
+            padding: 12px;
+            border-left: 4px solid #48bb78;
+            background: #f0fff4;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .recommendation-item {
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .rec-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .priority-tag {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .priority-medium {
+            background: #fbd38d;
+            color: #c05621;
+        }
+
+        .priority-low {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .rec-impact {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .rec-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 4000;
+            max-width: 300px;
+            font-size: 13px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.warning {
+            background: #f59e0b;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .main-content {
                 padding: 20px;
             }
 
-            .swarms-layout {
+            .dashboard-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
 
-            .swarm-types {
+            .sub-nav-tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .swarm-types-grid {
                 grid-template-columns: 1fr;
             }
 
-            .stats-grid {
+            .templates-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .archive-filters {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        function App() {
-            const [query, setQuery] = useState('');
-            const [selectedSwarmType, setSelectedSwarmType] = useState('competitive');
-            const [activeSwarms, setActiveSwarms] = useState([
-                {
-                    id: 1,
-                    query: "How are my competitors positioning against sustainable packaging trends?",
-                    type: "Competitive Analysis",
-                    status: "completed",
-                    progress: 100,
-                    timeRemaining: null,
-                    results: {
-                        keyFindings: [
-                            "3 major competitors launched eco-friendly packaging lines in Q4 2024",
-                            "Notion increased sustainability messaging by 340% across social channels", 
-                            "Airtable partnered with TerraCycle for office waste management program"
-                        ],
-                        recommendations: [
-                            {
-                                action: "Launch 'Green TaskFlow' sustainability initiative",
-                                impact: "Estimated 25% increase in eco-conscious customer segment",
-                                priority: "High",
-                                timeline: "2-3 months",
-                                effort: "Medium"
-                            },
-                            {
-                                action: "Partner with sustainable tech influencers",
-                                impact: "Reach 150K+ sustainability-focused professionals",
-                                priority: "Medium", 
-                                timeline: "1 month",
-                                effort: "Low"
-                            }
-                        ],
-                        sources: [
-                            "Competitor websites and press releases",
-                            "Social media content analysis",
-                            "Sustainability industry reports",
-                            "Customer review sentiment analysis"
-                        ]
-                    }
-                },
-                {
-                    id: 2,
-                    query: "What project management features are users requesting most in 2024?",
-                    type: "Market Research",
-                    status: "processing",
-                    progress: 73,
-                    timeRemaining: "2 min"
-                },
-                {
-                    id: 3,
-                    query: "Analyze pricing strategies of top 5 SaaS competitors",
-                    type: "Pricing Analysis", 
-                    status: "running",
-                    progress: 45,
-                    timeRemaining: "4 min"
-                }
-            ]);
-            const [showModal, setShowModal] = useState(false);
-            const [modalContent, setModalContent] = useState(null);
-
-            const swarmTypes = [
-                {
-                    id: 'competitive',
-                    name: 'Competitive Analysis',
-                    icon: '🎯',
-                    description: 'Track competitor moves and strategies'
-                },
-                {
-                    id: 'market',
-                    name: 'Market Research',
-                    icon: '📈',
-                    description: 'Analyze market trends and opportunities'
-                },
-                {
-                    id: 'customer',
-                    name: 'Customer Intelligence',
-                    icon: '👥',
-                    description: 'Understand customer needs and behavior'
-                },
-                {
-                    id: 'product',
-                    name: 'Product Intelligence',
-                    icon: '🔍',
-                    description: 'Research features and innovation trends'
-                }
-            ];
-
-            const suggestionQueries = {
-                competitive: [
-                    "What pricing changes have competitors made recently?",
-                    "Which competitors are hiring for which roles?",
-                    "How are competitors marketing their new features?"
-                ],
-                market: [
-                    "What are the biggest SaaS trends for 2025?",
-                    "Which industries are adopting project management tools fastest?",
-                    "What features do users want most in productivity software?"
-                ],
-                customer: [
-                    "Why are customers churning to competitors?",
-                    "What do reviews say about our vs competitor UX?",
-                    "Which customer segments are growing fastest?"
-                ],
-                product: [
-                    "What AI features are competitors launching?",
-                    "How are productivity tools integrating with other software?",
-                    "What mobile features are becoming table stakes?"
-                ]
-            };
-
-            const launchSwarm = () => {
-                if (!query.trim()) return;
-                
-                const newSwarm = {
-                    id: activeSwarms.length + 1,
-                    query: query,
-                    type: swarmTypes.find(t => t.id === selectedSwarmType)?.name || 'Research',
-                    status: 'running',
-                    progress: 0,
-                    timeRemaining: '5 min'
-                };
-                
-                setActiveSwarms([newSwarm, ...activeSwarms]);
-                setQuery('');
-                
-                // Simulate progress
-                const interval = setInterval(() => {
-                    setActiveSwarms(current => 
-                        current.map(swarm => 
-                            swarm.id === newSwarm.id && swarm.status === 'running'
-                                ? { 
-                                    ...swarm, 
-                                    progress: Math.min(swarm.progress + Math.random() * 15, 100),
-                                    status: swarm.progress >= 95 ? 'completed' : 'running',
-                                    timeRemaining: swarm.progress >= 95 ? null : `${Math.ceil((100 - swarm.progress) / 20)} min`
-                                }
-                                : swarm
-                        )
-                    );
-                }, 2000);
-                
-                setTimeout(() => clearInterval(interval), 30000);
-            };
-
-            const viewSwarmResults = (swarm) => {
-                setModalContent({
-                    title: `Swarm Results: ${swarm.query}`,
-                    swarm: swarm
-                });
-                setShowModal(true);
-            };
-
-            return (
-                <div className="main-content">
-                    <div className="swarms-header">
-                        <h1 className="swarms-title">🔬 Research Swarms</h1>
-                        <p className="swarms-subtitle">
-                            AI-powered multi-agent research system for deep competitive intelligence and market analysis
-                        </p>
+    <div class="main-content">
+        <!-- Sub-Navigation -->
+        <div class="sub-navigation">
+            <div class="sub-nav-header" onclick="toggleSubNav()">
+                <div class="sub-nav-title">🔬 Research Swarms Navigation</div>
+                <div class="sub-nav-toggle" id="sub-nav-toggle">▼</div>
+            </div>
+            <div class="sub-nav-content" id="sub-nav-content">
+                <div class="sub-nav-tabs">
+                    <div class="sub-nav-tab active" onclick="switchSection('dashboard')" data-section="dashboard">
+                        🚀 Active Dashboard
                     </div>
-
-                    <div className="swarms-layout">
-                        <div>
-                            {/* Swarm Creator */}
-                            <div className="swarm-creator">
-                                <div className="creator-header">
-                                    <span style={{ fontSize: '24px' }}>🚀</span>
-                                    <h2 className="creator-title">Launch New Research Swarm</h2>
-                                </div>
-                                
-                                <textarea
-                                    className="query-input"
-                                    placeholder="What would you like the swarm to research? Be specific about your business challenge..."
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                />
-
-                                <div className="swarm-types">
-                                    {swarmTypes.map(type => (
-                                        <div
-                                            key={type.id}
-                                            className={`swarm-type ${selectedSwarmType === type.id ? 'selected' : ''}`}
-                                            onClick={() => setSelectedSwarmType(type.id)}
-                                        >
-                                            <div className="swarm-type-icon">{type.icon}</div>
-                                            <div className="swarm-type-name">{type.name}</div>
-                                            <div className="swarm-type-desc">{type.description}</div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {suggestionQueries[selectedSwarmType] && (
-                                    <div className="suggestions">
-                                        <div className="suggestions-title">Popular queries for {swarmTypes.find(t => t.id === selectedSwarmType)?.name}:</div>
-                                        <div className="suggestion-buttons">
-                                            {suggestionQueries[selectedSwarmType].map((suggestion, index) => (
-                                                <button
-                                                    key={index}
-                                                    className="suggestion-btn"
-                                                    onClick={() => setQuery(suggestion)}
-                                                >
-                                                    {suggestion}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <button
-                                    className="launch-button"
-                                    onClick={launchSwarm}
-                                    disabled={!query.trim()}
-                                >
-                                    🚀 Launch Swarm ({swarmTypes.find(t => t.id === selectedSwarmType)?.name})
-                                </button>
-                            </div>
-
-                            {/* Active Swarms */}
-                            <div className="active-swarms">
-                                <h2 className="active-swarms-title">
-                                    <span>⚡</span>
-                                    Active Research Swarms
-                                </h2>
-                                
-                                {activeSwarms.map(swarm => (
-                                    <div 
-                                        key={swarm.id} 
-                                        className="swarm-item"
-                                        onClick={() => swarm.status === 'completed' && viewSwarmResults(swarm)}
-                                    >
-                                        <div className="swarm-query">{swarm.query}</div>
-                                        <div className="swarm-status">
-                                            <span className={`status-badge ${swarm.status}`}>
-                                                {swarm.status.charAt(0).toUpperCase() + swarm.status.slice(1)}
-                                            </span>
-                                            <span>{swarm.type}</span>
-                                            {swarm.timeRemaining && <span>⏱ {swarm.timeRemaining} remaining</span>}
-                                            {swarm.status === 'completed' && <span style={{ color: '#667eea', fontWeight: 600 }}>📋 View Results</span>}
-                                        </div>
-                                        {swarm.status !== 'completed' && (
-                                            <div style={{ 
-                                                width: '100%', 
-                                                height: '6px', 
-                                                background: '#f1f5f9', 
-                                                borderRadius: '3px', 
-                                                marginTop: '12px', 
-                                                overflow: 'hidden' 
-                                            }}>
-                                                <div style={{ 
-                                                    width: `${swarm.progress}%`, 
-                                                    height: '100%', 
-                                                    background: '#667eea', 
-                                                    borderRadius: '3px',
-                                                    transition: 'width 0.5s ease'
-                                                }} />
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Control Panel */}
-                        <div className="control-panel">
-                            <div className="swarm-stats">
-                                <h3 className="stats-title">📊 Swarm Performance</h3>
-                                <div className="stats-grid">
-                                    <div className="stat-item">
-                                        <div className="stat-value">47</div>
-                                        <div className="stat-label">Total Swarms</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-value">3</div>
-                                        <div className="stat-label">Active Now</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-value">2.3m</div>
-                                        <div className="stat-label">Avg Time</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-value">94%</div>
-                                        <div className="stat-label">Success Rate</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="swarm-templates">
-                                <h3 className="stats-title">🎯 Quick Templates</h3>
-                                {[
-                                    { title: "Competitor Feature Analysis", desc: "Track new features and updates" },
-                                    { title: "Pricing Intelligence", desc: "Monitor pricing changes and strategies" },
-                                    { title: "Market Trend Research", desc: "Identify emerging market opportunities" },
-                                    { title: "Customer Sentiment Tracking", desc: "Analyze customer feedback and reviews" }
-                                ].map((template, index) => (
-                                    <div key={index} className="template-item" onClick={() => setQuery(`Create a ${template.title.toLowerCase()} for TaskFlow vs main competitors`)}>
-                                        <div className="template-title">{template.title}</div>
-                                        <div className="template-description">{template.desc}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="research-insights">
-                                <h3 className="stats-title">💡 Recent Insights</h3>
-                                <div className="insight-item">
-                                    <div className="insight-text">Competitors increasing AI feature mentions by 340%</div>
-                                </div>
-                                <div className="insight-item">
-                                    <div className="insight-text">Project management market growing 12% annually</div>
-                                </div>
-                                <div className="insight-item">
-                                    <div className="insight-text">Mobile-first features becoming customer requirement</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="sub-nav-tab" onclick="switchSection('templates')" data-section="templates">
+                        📋 Swarm Templates
                     </div>
-
-                    {/* Results Modal */}
-                    {showModal && modalContent && (
-                        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="modal-header">
-                                    <h2 className="modal-title">{modalContent.title}</h2>
-                                    <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-                                </div>
-                                
-                                {modalContent.swarm?.results && (
-                                    <div>
-                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>🔍 Key Findings</h3>
-                                        <ul style={{ marginBottom: '24px', paddingLeft: '20px' }}>
-                                            {modalContent.swarm.results.keyFindings.map((finding, index) => (
-                                                <li key={index} style={{ marginBottom: '8px', color: '#4a5568' }}>{finding}</li>
-                                            ))}
-                                        </ul>
-
-                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>💡 Strategic Recommendations</h3>
-                                        <div style={{ marginBottom: '24px' }}>
-                                            {modalContent.swarm.results.recommendations.map((rec, index) => (
-                                                <div key={index} style={{ 
-                                                    padding: '16px', 
-                                                    border: '1px solid #e2e8f0', 
-                                                    borderRadius: '8px', 
-                                                    marginBottom: '12px',
-                                                    borderLeft: `4px solid ${rec.priority === 'High' ? '#f56565' : '#ed8936'}`
-                                                }}>
-                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px'}}>
-                                                        <h4 style={{color: '#2d3748', margin: 0}}>{rec.action}</h4>
-                                                        <span style={{
-                                                            background: rec.priority === 'High' ? '#fed7d7' : '#fbd38d',
-                                                            color: rec.priority === 'High' ? '#c53030' : '#c05621',
-                                                            padding: '2px 8px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '12px',
-                                                            fontWeight: '600'
-                                                        }}>
-                                                            {rec.priority}
-                                                        </span>
-                                                    </div>
-                                                    <div style={{fontSize: '14px', color: '#718096', marginBottom: '8px'}}>
-                                                        <strong>Impact:</strong> {rec.impact}
-                                                    </div>
-                                                    <div style={{display: 'flex', gap: '16px', fontSize: '12px', color: '#a0aec0'}}>
-                                                        <span><strong>Timeline:</strong> {rec.timeline}</span>
-                                                        <span><strong>Effort:</strong> {rec.effort}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <h3 style={{ marginBottom: '16px', color: '#2d3748' }}>📚 Data Sources</h3>
-                                        <ul style={{ paddingLeft: '20px' }}>
-                                            {modalContent.swarm.results.sources.map((source, index) => (
-                                                <li key={index} style={{ marginBottom: '4px', color: '#718096', fontSize: '14px' }}>{source}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    <div class="sub-nav-tab" onclick="switchSection('archive')" data-section="archive">
+                        📚 Results Archive
+                    </div>
+                    <div class="sub-nav-tab" onclick="switchSection('competitive')" data-section="competitive">
+                        🎯 Competitive Intel
+                    </div>
+                    <div class="sub-nav-tab" onclick="switchSection('trends')" data-section="trends">
+                        📈 Market Trends
+                    </div>
+                    <div class="sub-nav-tab" onclick="switchSection('settings')" data-section="settings">
+                        ⚙️ Configuration
+                    </div>
                 </div>
-            );
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="swarms-header">
+            <h1 class="swarms-title">🔬 Research Swarms Intelligence</h1>
+            <p class="swarms-subtitle" id="header-subtitle">
+                AI-powered multi-agent research system for deep competitive intelligence and market analysis
+            </p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Section -->
+            <div class="section active" id="dashboard-section">
+                <div class="dashboard-grid">
+                    <div>
+                        <!-- Swarm Creator -->
+                        <div class="swarm-creator">
+                            <h2 class="creator-title">🚀 Launch New Research Swarm</h2>
+                            <textarea 
+                                class="query-input" 
+                                id="swarm-query"
+                                placeholder="What would you like the swarm to research? Be specific about your business challenge..."
+                            ></textarea>
+                            
+                            <div class="swarm-types-grid">
+                                <div class="swarm-type-btn selected" onclick="selectSwarmType('competitive')" data-type="competitive">
+                                    🎯 Competitive Analysis
+                                </div>
+                                <div class="swarm-type-btn" onclick="selectSwarmType('market')" data-type="market">
+                                    📈 Market Research
+                                </div>
+                                <div class="swarm-type-btn" onclick="selectSwarmType('customer')" data-type="customer">
+                                    👥 Customer Intelligence
+                                </div>
+                                <div class="swarm-type-btn" onclick="selectSwarmType('product')" data-type="product">
+                                    🔍 Product Research
+                                </div>
+                            </div>
+                            
+                            <button class="launch-btn" onclick="launchSwarm()" id="launch-btn" disabled>
+                                🚀 Launch Swarm (Competitive Analysis)
+                            </button>
+                        </div>
+
+                        <!-- Active Swarms -->
+                        <div class="active-swarms">
+                            <h2 class="swarms-list-title">⚡ Active Research Swarms</h2>
+                            <div id="swarms-list">
+                                <!-- Swarms will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Panel -->
+                    <div class="stats-panel">
+                        <div class="stats-card">
+                            <h3 class="stats-title">📊 Performance Metrics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="total-swarms">47</div>
+                                    <div class="stat-label">Total Swarms</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="active-swarms">3</div>
+                                    <div class="stat-label">Active Now</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">2.3m</div>
+                                    <div class="stat-label">Avg Time</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">94%</div>
+                                    <div class="stat-label">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-card">
+                            <h3 class="stats-title">💡 Recent Insights</h3>
+                            <div class="finding-item">Competitors increasing AI feature mentions by 340%</div>
+                            <div class="finding-item">Project management market growing 12% annually</div>
+                            <div class="finding-item">Mobile-first features becoming customer requirement</div>
+                        </div>
+
+                        <div class="stats-card">
+                            <h3 class="stats-title">🔥 Trending Queries</h3>
+                            <div style="font-size: 12px; color: #4a5568; line-height: 1.4;">
+                                <div style="margin-bottom: 6px;">• SaaS pricing strategy analysis</div>
+                                <div style="margin-bottom: 6px;">• AI feature competitive landscape</div>
+                                <div style="margin-bottom: 6px;">• Customer churn prediction models</div>
+                                <div style="margin-bottom: 6px;">• Remote work tool integrations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div class="section" id="templates-section">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">📋 Pre-built Swarm Templates</h2>
+                <p style="margin-bottom: 30px; color: #718096;">Launch research swarms instantly with these industry-tested templates</p>
+                
+                <div class="templates-grid" id="templates-grid">
+                    <!-- Templates will be populated here -->
+                </div>
+            </div>
+
+            <!-- Archive Section -->
+            <div class="section" id="archive-section">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">📚 Research Archive</h2>
+                
+                <div class="archive-filters">
+                    <input type="text" class="search-box" placeholder="Search research history..." onkeyup="filterArchive()">
+                    <div class="filter-btn active" onclick="setArchiveFilter('all')">All Results</div>
+                    <div class="filter-btn" onclick="setArchiveFilter('competitive')">Competitive</div>
+                    <div class="filter-btn" onclick="setArchiveFilter('market')">Market Research</div>
+                    <div class="filter-btn" onclick="setArchiveFilter('customer')">Customer Intel</div>
+                    <div class="filter-btn" onclick="setArchiveFilter('product')">Product Research</div>
+                </div>
+                
+                <div id="archive-results">
+                    <!-- Archive results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Competitive Intelligence Section -->
+            <div class="section" id="competitive-section">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">🎯 Competitive Intelligence Dashboard</h2>
+                <p style="margin-bottom: 30px; color: #718096;">Real-time monitoring and analysis of your competitive landscape</p>
+                
+                <div id="competitive-content">
+                    <!-- Competitive intelligence content will be populated here -->
+                </div>
+            </div>
+
+            <!-- Market Trends Section -->
+            <div class="section" id="trends-section">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">📈 Market Trends Analysis</h2>
+                <p style="margin-bottom: 30px; color: #718096;">Industry trends, forecasts, and opportunity identification</p>
+                
+                <div id="trends-content">
+                    <!-- Market trends content will be populated here -->
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="section" id="settings-section">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">⚙️ Swarm Configuration</h2>
+                <p style="margin-bottom: 30px; color: #718096;">Configure data sources, parameters, and notification preferences</p>
+                
+                <div id="settings-content">
+                    <!-- Settings content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal-overlay" id="results-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modal-title">Swarm Results</h2>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div id="modal-body">
+                    <!-- Modal content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let activeSwarms = [
+            {
+                id: 1,
+                query: "How are my competitors positioning against sustainable packaging trends?",
+                type: "competitive",
+                typeName: "Competitive Analysis",
+                status: "completed",
+                progress: 100,
+                timeRemaining: null,
+                timestamp: Date.now() - 3600000,
+                results: {
+                    keyFindings: [
+                        "3 major competitors launched eco-friendly packaging lines in Q4 2024",
+                        "Notion increased sustainability messaging by 340% across social channels", 
+                        "Airtable partnered with TerraCycle for office waste management program",
+                        "Market sentiment shows 73% positive response to sustainability initiatives",
+                        "B2B customers increasingly requesting sustainability certifications in RFPs"
+                    ],
+                    recommendations: [
+                        {
+                            action: "Launch 'Green TaskFlow' sustainability initiative with carbon-neutral hosting",
+                            impact: "Estimated 25% increase in eco-conscious customer segment acquisition",
+                            priority: "High",
+                            timeline: "2-3 months",
+                            effort: "Medium",
+                            revenue_impact: "$150K ARR potential"
+                        },
+                        {
+                            action: "Partner with sustainable tech influencers and B-Corp certification",
+                            impact: "Reach 150K+ sustainability-focused professionals, improve brand positioning",
+                            priority: "Medium", 
+                            timeline: "1 month",
+                            effort: "Low",
+                            revenue_impact: "$50K ARR potential"
+                        },
+                        {
+                            action: "Develop sustainability dashboard feature for customer carbon tracking",
+                            impact: "New premium feature differentiator, 40% of enterprise prospects interested",
+                            priority: "High",
+                            timeline: "4-6 months",
+                            effort: "High",
+                            revenue_impact: "$300K ARR potential"
+                        }
+                    ],
+                    sources: [
+                        "Competitor websites and press releases (47 sources analyzed)",
+                        "Social media content analysis (12K posts across LinkedIn, Twitter)",
+                        "Sustainability industry reports (McKinsey, BCG, Deloitte studies)",
+                        "Customer review sentiment analysis (2,400 reviews processed)",
+                        "RFP database analysis (340 enterprise RFPs from last 6 months)"
+                    ]
+                }
+            },
+            {
+                id: 2,
+                query: "What project management features are users requesting most in 2024?",
+                type: "market",
+                typeName: "Market Research",
+                status: "processing",
+                progress: 73,
+                timeRemaining: "2 min",
+                timestamp: Date.now() - 900000
+            },
+            {
+                id: 3,
+                query: "Analyze pricing strategies of top 5 SaaS competitors including recent changes",
+                type: "competitive",
+                typeName: "Competitive Analysis", 
+                status: "running",
+                progress: 45,
+                timeRemaining: "4 min",
+                timestamp: Date.now() - 300000
+            }
+        ];
+
+        let selectedSwarmType = 'competitive';
+        let obsessionScore = 8.4;
+        let subNavCollapsed = false;
+
+        // Templates data
+        const swarmTemplates = [
+            {
+                icon: "🎯",
+                title: "Competitor Feature Gap Analysis",
+                description: "Identify missing features in competitor products that could be your competitive advantage",
+                example: "Analyze Notion, Airtable, and Monday.com feature sets vs TaskFlow capabilities",
+                query: "Compare TaskFlow features against Notion, Airtable, Monday.com, and Asana. Identify gaps in their offerings that we could exploit as competitive advantages. Focus on missing integrations, workflow limitations, and user complaints.",
+                type: "competitive"
+            },
+            {
+                icon: "💰",
+                title: "SaaS Pricing Strategy Intelligence",
+                description: "Monitor competitor pricing changes and market positioning strategies",
+                example: "Track pricing updates across major project management tools",
+                query: "Analyze current pricing strategies of Asana, Monday.com, Notion, Airtable, and Clickup. Track recent price changes, feature tier adjustments, and customer reactions. Provide recommendations for TaskFlow pricing optimization.",
+                type: "competitive"
+            },
+            {
+                icon: "📈",
+                title: "Market Opportunity Mapping",
+                description: "Discover emerging market segments and untapped customer needs",
+                example: "Identify growing industries adopting project management tools",
+                query: "Research fastest-growing industry segments adopting project management software in 2024-2025. Analyze their specific needs, budget ranges, and preferred feature sets. Identify underserved niches TaskFlow could target.",
+                type: "market"
+            },
+            {
+                icon: "👥",
+                title: "Customer Churn Analysis",
+                description: "Understand why customers leave for competitors and how to prevent it",
+                example: "Analyze TaskFlow vs competitor customer satisfaction patterns",
+                query: "Research why SaaS customers churn from project management tools. Analyze competitor customer reviews, complaints, and migration patterns. Identify early warning signs and retention strategies that work.",
+                type: "customer"
+            },
+            {
+                icon: "🤖",
+                title: "AI Feature Competitive Landscape",
+                description: "Track AI integration strategies across the competitive landscape",
+                example: "Monitor AI features being launched by major PM tools",
+                query: "Analyze AI features being integrated into project management tools by competitors. Track implementation approaches, customer reception, pricing models for AI features, and identify opportunities for TaskFlow's AI strategy.",
+                type: "product"
+            },
+            {
+                icon: "🔗",
+                title: "Integration Ecosystem Analysis",
+                description: "Map competitor integration strategies and identify partnership gaps",
+                example: "Research Slack, Zoom, Google Workspace integration patterns",
+                query: "Research integration ecosystems of major project management competitors. Analyze partnership strategies, API usage patterns, and integration gaps that TaskFlow could fill to gain competitive advantage.",
+                type: "product"
+            },
+            {
+                icon: "🌍",
+                title: "Global Market Expansion Intelligence",
+                description: "Research international market opportunities and localization requirements",
+                example: "Analyze European and Asian market entry strategies",
+                query: "Research international expansion strategies of successful SaaS project management tools. Analyze market entry approaches, localization requirements, pricing strategies, and regulatory considerations for key markets.",
+                type: "market"
+            },
+            {
+                icon: "📊",
+                title: "Customer Segment Deep Dive",
+                description: "Analyze specific customer segments and their unique requirements",
+                example: "Research startup vs enterprise customer behavior patterns",
+                query: "Deep dive into different customer segments using project management tools. Compare needs, behaviors, and satisfaction patterns between startups, SMBs, and enterprises. Identify segment-specific opportunities.",
+                type: "customer"
+            }
+        ];
+
+        // Utility functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast show ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+
+            // Send to parent portal
+            if (window.parent && window.parent !== window) {
+                try {
+                    window.parent.postMessage({
+                        type: 'notification',
+                        message: message,
+                        notificationType: type
+                    }, '*');
+                } catch (e) {
+                    console.log('Could not send notification to parent:', e);
+                }
+            }
         }
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        function updateObsessionScore(increase, action) {
+            obsessionScore = Math.min(10, obsessionScore + increase);
+            showToast(`${action} completed! Obsession score increased by ${increase.toFixed(1)}`, 'success');
+            
+            // Send to parent portal
+            if (window.parent && window.parent !== window) {
+                try {
+                    window.parent.postMessage({
+                        type: 'refleqt-event',
+                        event: 'obsession_updated',
+                        data: {
+                            newScore: obsessionScore,
+                            action: action,
+                            increase: increase
+                        }
+                    }, '*');
+                } catch (e) {
+                    console.log('Could not send obsession update to parent:', e);
+                }
+            }
+        }
+
+        // Sub-navigation functions
+        function toggleSubNav() {
+            const content = document.getElementById('sub-nav-content');
+            const toggle = document.getElementById('sub-nav-toggle');
+            
+            subNavCollapsed = !subNavCollapsed;
+            
+            if (subNavCollapsed) {
+                content.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+            } else {
+                content.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+            }
+        }
+
+        function switchSection(sectionName) {
+            // Update active tab
+            document.querySelectorAll('.sub-nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+            
+            // Update active section
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+            
+            // Update header subtitle based on section
+            const subtitles = {
+                dashboard: "AI-powered multi-agent research system for deep competitive intelligence and market analysis",
+                templates: "Pre-built research templates for common business intelligence scenarios",
+                archive: "Historical research results with search and filtering capabilities",
+                competitive: "Real-time competitive intelligence and monitoring dashboard",
+                trends: "Market trends analysis and opportunity identification system",
+                settings: "Configuration and customization options for research swarms"
+            };
+            
+            document.getElementById('header-subtitle').textContent = subtitles[sectionName];
+            
+            // Initialize section content if needed
+            initializeSection(sectionName);
+            
+            showToast(`Switched to ${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)} section`, 'info');
+        }
+
+        function initializeSection(sectionName) {
+            switch(sectionName) {
+                case 'templates':
+                    populateTemplates();
+                    break;
+                case 'archive':
+                    populateArchive();
+                    break;
+                case 'competitive':
+                    populateCompetitive();
+                    break;
+                case 'trends':
+                    populateTrends();
+                    break;
+                case 'settings':
+                    populateSettings();
+                    break;
+            }
+        }
+
+        // Swarm management functions
+        function selectSwarmType(type) {
+            selectedSwarmType = type;
+            
+            // Update button states
+            document.querySelectorAll('.swarm-type-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            // Update launch button text
+            const typeNames = {
+                competitive: 'Competitive Analysis',
+                market: 'Market Research',
+                customer: 'Customer Intelligence',
+                product: 'Product Research'
+            };
+            
+            document.getElementById('launch-btn').textContent = `🚀 Launch Swarm (${typeNames[type]})`;
+        }
+
+        function launchSwarm() {
+            const query = document.getElementById('swarm-query').value.trim();
+            if (!query) return;
+            
+            const typeNames = {
+                competitive: 'Competitive Analysis',
+                market: 'Market Research',
+                customer: 'Customer Intelligence',
+                product: 'Product Research'
+            };
+            
+            const newSwarm = {
+                id: activeSwarms.length + 1,
+                query: query,
+                type: selectedSwarmType,
+                typeName: typeNames[selectedSwarmType],
+                status: 'running',
+                progress: 0,
+                timeRemaining: '5 min',
+                timestamp: Date.now()
+            };
+            
+            activeSwarms.unshift(newSwarm);
+            document.getElementById('swarm-query').value = '';
+            updateLaunchButton();
+            renderSwarms();
+            updateStats();
+            
+            updateObsessionScore(0.3, 'Research Swarm Launched');
+            showToast(`Research swarm launched: ${typeNames[selectedSwarmType]}`, 'success');
+            
+            // Simulate progress
+            simulateSwarmProgress(newSwarm.id);
+        }
+
+        function simulateSwarmProgress(swarmId) {
+            const interval = setInterval(() => {
+                const swarmIndex = activeSwarms.findIndex(s => s.id === swarmId);
+                if (swarmIndex === -1) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                const swarm = activeSwarms[swarmIndex];
+                if (swarm.status !== 'running' && swarm.status !== 'processing') {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                swarm.progress = Math.min(swarm.progress + Math.random() * 12, 100);
+                
+                if (swarm.progress > 50 && swarm.status === 'running') {
+                    swarm.status = 'processing';
+                    swarm.timeRemaining = '2 min';
+                } else if (swarm.progress >= 95) {
+                    swarm.status = 'completed';
+                    swarm.timeRemaining = null;
+                    swarm.progress = 100;
+                    updateObsessionScore(0.2, 'Research Swarm Completed');
+                    showToast('Research swarm completed! Click to view results.', 'success');
+                } else if (swarm.status === 'processing') {
+                    swarm.timeRemaining = Math.ceil((100 - swarm.progress) / 20) + ' min';
+                }
+                
+                renderSwarms();
+                
+                if (swarm.status === 'completed') {
+                    clearInterval(interval);
+                }
+            }, 2000);
+        }
+
+        function renderSwarms() {
+            const container = document.getElementById('swarms-list');
+            
+            if (activeSwarms.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 40px;">No active swarms. Launch your first research swarm above!</div>';
+                return;
+            }
+            
+            container.innerHTML = activeSwarms.map(swarm => `
+                <div class="swarm-item" onclick="viewSwarmDetails(${swarm.id})">
+                    <div class="swarm-query">${swarm.query}</div>
+                    <div class="swarm-meta">
+                        <span class="status-badge ${swarm.status}">${swarm.status.charAt(0).toUpperCase() + swarm.status.slice(1)}</span>
+                        <span>${swarm.typeName}</span>
+                        ${swarm.timeRemaining ? `<span>⏱ ${swarm.timeRemaining} remaining</span>` : ''}
+                        ${swarm.status === 'completed' ? '<span style="color: #667eea; font-weight: 600;">📋 View Results</span>' : ''}
+                        <span style="margin-left: auto;">${formatTimeAgo(swarm.timestamp)}</span>
+                    </div>
+                    ${swarm.status !== 'completed' ? `
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${swarm.progress}%"></div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('total-swarms').textContent = activeSwarms.length + 44; // Add base number
+            document.getElementById('active-swarms').textContent = activeSwarms.filter(s => s.status === 'running' || s.status === 'processing').length;
+        }
+
+        function updateLaunchButton() {
+            const query = document.getElementById('swarm-query').value.trim();
+            const btn = document.getElementById('launch-btn');
+            btn.disabled = !query;
+        }
+
+        function viewSwarmDetails(swarmId) {
+            const swarm = activeSwarms.find(s => s.id === swarmId);
+            if (!swarm) return;
+            
+            if (swarm.status === 'completed' && swarm.results) {
+                showSwarmResults(swarm);
+            } else {
+                showToast(`Swarm is ${swarm.status}. Results will be available when completed.`, 'info');
+            }
+        }
+
+        function showSwarmResults(swarm) {
+            document.getElementById('modal-title').textContent = `Research Results: ${swarm.query}`;
+            
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = `
+                <div class="results-section">
+                    <h3 class="results-title">🔍 Key Findings</h3>
+                    ${swarm.results.keyFindings.map(finding => `
+                        <div class="finding-item">${finding}</div>
+                    `).join('')}
+                </div>
+
+                <div class="results-section">
+                    <h3 class="results-title">💡 Strategic Recommendations</h3>
+                    ${swarm.results.recommendations.map(rec => `
+                        <div class="recommendation-item">
+                            <div class="rec-header">
+                                <h4 class="rec-title">${rec.action}</h4>
+                                <span class="priority-tag priority-${rec.priority.toLowerCase()}">${rec.priority}</span>
+                            </div>
+                            <div class="rec-impact"><strong>Impact:</strong> ${rec.impact}</div>
+                            <div class="rec-meta">
+                                <span><strong>Timeline:</strong> ${rec.timeline}</span>
+                                <span><strong>Effort:</strong> ${rec.effort}</span>
+                                ${rec.revenue_impact ? `<span><strong>Revenue Impact:</strong> ${rec.revenue_impact}</span>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="results-section">
+                    <h3 class="results-title">📚 Data Sources Analyzed</h3>
+                    <ul style="padding-left: 20px;">
+                        ${swarm.results.sources.map(source => `
+                            <li style="margin-bottom: 6px; color: #4a5568; font-size: 14px;">${source}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('results-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('results-modal').classList.remove('show');
+        }
+
+        // Template functions
+        function populateTemplates() {
+            const container = document.getElementById('templates-grid');
+            container.innerHTML = swarmTemplates.map(template => `
+                <div class="template-card" onclick="useTemplate('${template.query}', '${template.type}')">
+                    <div class="template-icon">${template.icon}</div>
+                    <div class="template-title">${template.title}</div>
+                    <div class="template-desc">${template.description}</div>
+                    <div class="template-example">Example: ${template.example}</div>
+                </div>
+            `).join('');
+        }
+
+        function useTemplate(query, type) {
+            // Switch to dashboard
+            switchSection('dashboard');
+            
+            // Set the query and type
+            document.getElementById('swarm-query').value = query;
+            selectSwarmType(type);
+            updateLaunchButton();
+            
+            showToast('Template loaded! Review and launch your swarm.', 'success');
+        }
+
+        // Archive functions
+        function populateArchive() {
+            const container = document.getElementById('archive-results');
+            const completedSwarms = activeSwarms.filter(s => s.status === 'completed');
+            
+            // Add some historical data
+            const historicalSwarms = [
+                {
+                    id: 'hist-1',
+                    query: 'Analyze Q3 2024 SaaS market consolidation trends',
+                    type: 'market',
+                    typeName: 'Market Research',
+                    timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 7 days ago
+                    summary: 'Major findings: 12 acquisitions, average 340% premium, focus on AI capabilities'
+                },
+                {
+                    id: 'hist-2',
+                    query: 'Competitive pricing analysis: Notion vs Airtable enterprise tiers',
+                    type: 'competitive',
+                    typeName: 'Competitive Analysis',
+                    timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 14 days ago
+                    summary: 'Pricing gap identified: 25% opportunity in mid-market segment'
+                }
+            ];
+            
+            const allArchive = [...completedSwarms, ...historicalSwarms];
+            
+            if (allArchive.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #718096; padding: 40px;">No completed research yet. Launch some swarms to build your archive!</div>';
+                return;
+            }
+            
+            container.innerHTML = allArchive.map(swarm => `
+                <div class="swarm-item" onclick="viewArchiveItem('${swarm.id}')">
+                    <div class="swarm-query">${swarm.query}</div>
+                    <div class="swarm-meta">
+                        <span class="status-badge completed">Completed</span>
+                        <span>${swarm.typeName}</span>
+                        <span style="margin-left: auto;">${formatTimeAgo(swarm.timestamp)}</span>
+                    </div>
+                    ${swarm.summary ? `<div style="font-size: 12px; color: #718096; margin-top: 8px;">${swarm.summary}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function setArchiveFilter(filter) {
+            // Update filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            showToast(`Filter applied: ${filter}`, 'info');
+            // Here you would implement actual filtering logic
+        }
+
+        function filterArchive() {
+            showToast('Archive search functionality ready', 'info');
+            // Implement search filtering here
+        }
+
+        function viewArchiveItem(itemId) {
+            if (itemId.startsWith('hist-')) {
+                showToast('Historical research details available in full version', 'info');
+            } else {
+                const swarm = activeSwarms.find(s => s.id == itemId);
+                if (swarm && swarm.results) {
+                    showSwarmResults(swarm);
+                }
+            }
+        }
+
+        // Competitive intelligence functions
+        function populateCompetitive() {
+            const container = document.getElementById('competitive-content');
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div class="stats-card">
+                        <h3 class="stats-title">🎯 Active Competitor Monitoring</h3>
+                        <div style="font-size: 14px; color: #4a5568; line-height: 1.6;">
+                            <div style="margin-bottom: 8px;">• <strong>Notion:</strong> New AI features launched</div>
+                            <div style="margin-bottom: 8px;">• <strong>Airtable:</strong> Enterprise pricing increased 15%</div>
+                            <div style="margin-bottom: 8px;">• <strong>Monday.com:</strong> Mobile app update released</div>
+                            <div style="margin-bottom: 8px;">• <strong>Asana:</strong> Integration with Microsoft Teams</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3 class="stats-title">📊 Market Position Analysis</h3>
+                        <div style="font-size: 14px; color: #4a5568;">
+                            <div style="margin-bottom: 8px;"><strong>TaskFlow Market Share:</strong> 2.3%</div>
+                            <div style="margin-bottom: 8px;"><strong>Growth Rate:</strong> +23% YoY</div>
+                            <div style="margin-bottom: 8px;"><strong>Customer Satisfaction:</strong> 4.2/5</div>
+                            <div style="margin-bottom: 8px;"><strong>Competitive Strength:</strong> Strong</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="templates-grid">
+                    <div class="template-card" onclick="launchCompetitiveSwarm('pricing')">
+                        <div class="template-icon">💰</div>
+                        <div class="template-title">Pricing Intelligence</div>
+                        <div class="template-desc">Monitor competitor pricing changes and strategy shifts</div>
+                    </div>
+                    
+                    <div class="template-card" onclick="launchCompetitiveSwarm('features')">
+                        <div class="template-icon">⚡</div>
+                        <div class="template-title">Feature Tracking</div>
+                        <div class="template-desc">Track new feature launches and product updates</div>
+                    </div>
+                    
+                    <div class="template-card" onclick="launchCompetitiveSwarm('marketing')">
+                        <div class="template-icon">📢</div>
+                        <div class="template-title">Marketing Strategy</div>
+                        <div class="template-desc">Analyze competitor marketing campaigns and messaging</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function launchCompetitiveSwarm(type) {
+            const queries = {
+                pricing: "Analyze recent pricing changes by Notion, Airtable, Monday.com, and Asana. Include enterprise tier adjustments, new pricing models, and customer reactions.",
+                features: "Track new features launched by major project management competitors in the last 30 days. Focus on AI integrations, mobile updates, and enterprise capabilities.",
+                marketing: "Research current marketing strategies of top PM tool competitors. Analyze messaging themes, ad spend patterns, and campaign effectiveness."
+            };
+            
+            switchSection('dashboard');
+            document.getElementById('swarm-query').value = queries[type];
+            selectSwarmType('competitive');
+            updateLaunchButton();
+            
+            showToast(`Competitive ${type} analysis ready to launch!`, 'success');
+        }
+
+        // Market trends functions
+        function populateTrends() {
+            const container = document.getElementById('trends-content');
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <h3 style="margin-bottom: 16px; color: #2d3748;">📈 Current Market Trends</h3>
+                        <div class="finding-item">AI integration becoming standard in PM tools (340% increase)</div>
+                        <div class="finding-item">Remote work driving demand for mobile-first features</div>
+                        <div class="finding-item">Enterprise customers demanding advanced security features</div>
+                        <div class="finding-item">Integration ecosystem becoming key differentiator</div>
+                        <div class="finding-item">Sustainability features requested in 67% of RFPs</div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 16px; color: #2d3748;">🚀 Emerging Opportunities</h3>
+                        <div class="recommendation-item">
+                            <div class="rec-title">AI-Powered Project Health Scoring</div>
+                            <div class="rec-impact">High demand, low competitor saturation</div>
+                        </div>
+                        <div class="recommendation-item">
+                            <div class="rec-title">Industry-Specific Templates</div>
+                            <div class="rec-impact">Manufacturing and healthcare showing strong interest</div>
+                        </div>
+                        <div class="recommendation-item">
+                            <div class="rec-title">Carbon Footprint Tracking</div>
+                            <div class="rec-impact">B-Corp certification driving enterprise demand</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="templates-grid">
+                    <div class="template-card" onclick="launchTrendSwarm('industry')">
+                        <div class="template-icon">🏭</div>
+                        <div class="template-title">Industry Analysis</div>
+                        <div class="template-desc">Research specific industry adoption patterns and requirements</div>
+                    </div>
+                    
+                    <div class="template-card" onclick="launchTrendSwarm('technology')">
+                        <div class="template-icon">🔬</div>
+                        <div class="template-title">Technology Trends</div>
+                        <div class="template-desc">Track emerging technologies impacting project management</div>
+                    </div>
+                    
+                    <div class="template-card" onclick="launchTrendSwarm('forecast')">
+                        <div class="template-icon">🔮</div>
+                        <div class="template-title">Market Forecast</div>
+                        <div class="template-desc">Generate predictions for market evolution and opportunities</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function launchTrendSwarm(type) {
+            const queries = {
+                industry: "Research which industries are adopting project management tools fastest in 2024-2025. Analyze specific requirements, budget ranges, and growth patterns.",
+                technology: "Identify emerging technologies (AI, blockchain, IoT) that will impact project management software in the next 2-3 years. Include adoption timelines and implementation strategies.",
+                forecast: "Create a comprehensive market forecast for the project management software industry through 2027. Include growth projections, disruption risks, and strategic recommendations."
+            };
+            
+            switchSection('dashboard');
+            document.getElementById('swarm-query').value = queries[type];
+            selectSwarmType('market');
+            updateLaunchButton();
+            
+            showToast(`Market ${type} research ready to launch!`, 'success');
+        }
+
+        // Settings functions
+        function populateSettings() {
+            const container = document.getElementById('settings-content');
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <div class="stats-card">
+                            <h3 class="stats-title">🔧 Swarm Configuration</h3>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Research Depth:</label>
+                                <select style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                    <option>Standard (5-10 sources)</option>
+                                    <option>Deep (15-25 sources)</option>
+                                    <option>Comprehensive (30+ sources)</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Analysis Speed:</label>
+                                <select style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                    <option>Fast (2-3 minutes)</option>
+                                    <option>Balanced (5-7 minutes)</option>
+                                    <option>Thorough (10-15 minutes)</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Result Format:</label>
+                                <select style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                    <option>Executive Summary</option>
+                                    <option>Detailed Analysis</option>
+                                    <option>Action-Oriented</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-card" style="margin-top: 20px;">
+                            <h3 class="stats-title">📊 Data Sources</h3>
+                            <div style="font-size: 14px;">
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Customer reviews
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Financial reports (Premium)
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Patent databases (Premium)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="stats-card">
+                            <h3 class="stats-title">🔔 Notifications</h3>
+                            <div style="font-size: 14px;">
+                                <label style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Email when swarm completes
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Push notifications
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Weekly digest
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Slack integration
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-card" style="margin-top: 20px;">
+                            <h3 class="stats-title">🎯 Focus Areas</h3>
+                            <div style="font-size: 14px;">
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> SaaS & Technology
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Project Management
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Enterprise Software
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> AI & Automation
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;"> Remote Work Tools
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="launch-btn" style="margin-top: 20px;" onclick="saveSettings()">
+                            💾 Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveSettings() {
+            showToast('Configuration saved successfully!', 'success');
+        }
+
+        // Utility functions
+        function formatTimeAgo(timestamp) {
+            const diff = Date.now() - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            return `${minutes}m ago`;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the page
+            renderSwarms();
+            updateStats();
+            
+            // Add input listener for launch button
+            document.getElementById('swarm-query').addEventListener('input', updateLaunchButton);
+            
+            // Show welcome message
+            setTimeout(() => {
+                showToast('Research Swarms system ready!', 'success');
+            }, 1000);
+        });
+
+        // Listen for messages from parent portal
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'refresh-swarms') {
+                renderSwarms();
+                updateStats();
+            }
+        });
+
+        // Simulate real-time updates for active swarms
+        setInterval(() => {
+            const runningSwarms = activeSwarms.filter(s => s.status === 'running' || s.status === 'processing');
+            if (runningSwarms.length > 0 && Math.random() < 0.3) {
+                renderSwarms();
+            }
+        }, 5000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        switchSection('dashboard');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchSection('templates');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchSection('archive');
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        const query = document.getElementById('swarm-query').value.trim();
+                        if (query && document.querySelector('.section.active').id === 'dashboard-section') {
+                            launchSwarm();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('results-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Performance monitoring
+        window.performance.mark('research-swarms-loaded');
+        
+        // Export functions for debugging
+        window.ResearchSwarms = {
+            activeSwarms,
+            switchSection,
+            launchSwarm,
+            showToast
+        };
     </script>
 </body>
-</html>
+</html> Competitor websites
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Social media analysis
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;"> Industry reports
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;">
