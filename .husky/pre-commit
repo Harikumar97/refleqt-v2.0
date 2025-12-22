@@ -1,0 +1,3 @@
+# Run safety checks before commit
+echo "Running safety checks..."
+npm run type-check && npx lint-staged
