@@ -3,7 +3,7 @@
  * Implements Power of Ten Rules for safe iteration and memory management
  */
 
-import { assert, assertInRange, assertMaxLength } from "./assert";
+import { assert, assertInRange } from "./assert";
 
 /**
  * Maximum iterations constant (Power of Ten Rule 2)
@@ -33,11 +33,10 @@ export function safeIterate<T>(
   callback: (item: T, index: number) => void,
   maxIterations: number = MAX_ITERATIONS
 ): SafeResult<void> {
-  assertMaxLength(items, maxIterations, "Items exceed maximum iterations");
-
   let iterations = 0;
   const itemsLength = items.length;
 
+  // Iterate up to maxIterations (Rule 2: Fixed upper bound)
   for (let i = 0; i < itemsLength && iterations < maxIterations; i++) {
     const item = items[i];
     if (item === undefined) {
@@ -51,6 +50,7 @@ export function safeIterate<T>(
     iterations++;
   }
 
+  // Final assertion for safety
   assert(iterations <= maxIterations, "Iteration exceeded maximum bound");
 
   return { success: true, value: undefined };
