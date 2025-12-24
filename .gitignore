@@ -44,3 +44,5 @@ next-env.d.ts
 prototype-backup
 *.html
 pages/*.html
+
+/generated/prisma
