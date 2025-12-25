@@ -119,7 +119,7 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
       />
 
       {error && (
-        <div className="p-4 mb-4 bg-red-50 border border-red-200 rounded-md text-red-800">
+        <div className="p-4 mb-4 bg-red-900/20 border border-red-800 rounded-md text-red-400">
           {error}
         </div>
       )}

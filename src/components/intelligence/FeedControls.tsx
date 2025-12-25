@@ -36,18 +36,21 @@ export function FeedControls({
   }
 
   return (
-    <div className="feed-controls bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+    <div className="feed-controls bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
       <div className="flex flex-col md:flex-row gap-4">
         {/* Category Filter */}
         <div className="flex-1">
-          <label htmlFor="category" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium mb-2 text-gray-300"
+          >
             Category
           </label>
           <select
             id="category"
             value={category ?? ""}
             onChange={(e) => onCategoryChange(e.target.value || null)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {categories.map((cat) => (
               <option key={cat.value ?? "all"} value={cat.value ?? ""}>
@@ -59,7 +62,10 @@ export function FeedControls({
 
         {/* Search */}
         <div className="flex-1">
-          <label htmlFor="search" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="search"
+            className="block text-sm font-medium mb-2 text-gray-300"
+          >
             Search
           </label>
           <form onSubmit={handleSearchSubmit} className="flex gap-2">
@@ -69,7 +75,7 @@ export function FeedControls({
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search intelligence items..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 bg-gray-900 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
@@ -89,7 +95,7 @@ export function FeedControls({
                 onSearchChange("");
                 setLocalSearch("");
               }}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 underline"
+              className="px-4 py-2 text-gray-300 hover:text-white underline"
             >
               Clear Filters
             </button>
