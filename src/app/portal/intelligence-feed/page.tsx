@@ -7,7 +7,8 @@ import { IntelligenceFeed } from "@/components/intelligence/IntelligenceFeed";
 
 export default function IntelligenceFeedPage() {
   // TODO: Get userId from NextAuth session
-  const userId = "demo-user-id";
+  // Using test user ID from database setup
+  const userId = "00000000-0000-0000-0000-000000000001";
 
   return (
     <div className="space-y-6">
