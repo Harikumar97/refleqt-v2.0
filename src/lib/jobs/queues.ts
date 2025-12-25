@@ -100,8 +100,7 @@ export const relevanceQueue = new Queue<RelevanceScoreJobData>(
 export async function queueFeedsForUser(userId: string): Promise<number> {
   assert(userId.length > 0, "userId must not be empty");
 
-  const { PrismaClient } = await import("@prisma/client");
-  const prisma = new PrismaClient();
+  const prisma = (await import("@/lib/db/prisma")).default;
 
   try {
     const sources = await prisma.intelligenceSource.findMany({

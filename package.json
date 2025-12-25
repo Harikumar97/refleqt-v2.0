@@ -17,6 +17,9 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "safety-check": "npm run type-check && npm run test:run && npm run format:check",
+    "validate": "node scripts/validate-dev-environment.js",
+    "fix": "node scripts/auto-fix-common-issues.js",
+    "dev:safe": "npm run fix && npm run validate && npm run dev",
     "prepare": "husky"
   },
   "repository": {
