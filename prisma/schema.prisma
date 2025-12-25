@@ -137,19 +137,19 @@ model IntelligenceSource {
 }
 
 model IntelligenceItem {
-  id             String                        @id @default(uuid())
-  sourceId       String                        @map("source_id")
-  userId         String                        @map("user_id")
-  title          String                        @db.VarChar(500)
-  content        String                        @db.Text
-  url            String?                       @db.VarChar(500)
+  id             String                       @id @default(uuid())
+  sourceId       String                       @map("source_id")
+  userId         String                       @map("user_id")
+  title          String                       @db.VarChar(500)
+  content        String                       @db.Text
+  url            String?                      @db.VarChar(500)
   author         String?
-  publishedAt    DateTime?                     @map("published_at")
-  fetchedAt      DateTime                      @default(now()) @map("fetched_at")
-  relevanceScore Decimal?                      @map("relevance_score") @db.Decimal(3, 2)
-  embedding      Unsupported("vector(1536)")?  // pgvector for semantic search
+  publishedAt    DateTime?                    @map("published_at")
+  fetchedAt      DateTime                     @default(now()) @map("fetched_at")
+  relevanceScore Decimal?                     @map("relevance_score") @db.Decimal(3, 2)
+  embedding      Unsupported("vector(1536)")? // pgvector for semantic search
   metadata       Json? // flexible storage for source-specific data
-  createdAt      DateTime                      @default(now()) @map("created_at")
+  createdAt      DateTime                     @default(now()) @map("created_at")
 
   // Relations
   source IntelligenceSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
@@ -164,16 +164,16 @@ model IntelligenceItem {
 // ============================================================================
 
 model ResearchSwarm {
-  id            String         @id @default(uuid())
-  userId        String         @map("user_id")
-  query         String         @db.Text
-  swarmType     String         @map("swarm_type") // 'competitive', 'market', 'technical', 'customer'
-  status        String         @default("pending") // 'pending', 'running', 'completed', 'failed'
-  progressPct   Int            @default(0) @map("progress_percent")
-  agentConfig   Json?          @map("agent_config") // MCP agent configuration
-  startedAt     DateTime?      @map("started_at")
-  completedAt   DateTime?      @map("completed_at")
-  createdAt     DateTime       @default(now()) @map("created_at")
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  query       String    @db.Text
+  swarmType   String    @map("swarm_type") // 'competitive', 'market', 'technical', 'customer'
+  status      String    @default("pending") // 'pending', 'running', 'completed', 'failed'
+  progressPct Int       @default(0) @map("progress_percent")
+  agentConfig Json?     @map("agent_config") // MCP agent configuration
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   // Relations
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -183,14 +183,14 @@ model ResearchSwarm {
 }
 
 model SwarmFinding {
-  id              String    @id @default(uuid())
-  swarmId         String    @map("swarm_id")
-  findingType     String?   @map("finding_type") // 'insight', 'trend', 'opportunity', 'threat'
-  title           String?   @db.VarChar(500)
-  content         String    @db.Text
-  confidenceScore Decimal?  @map("confidence_score") @db.Decimal(3, 2)
+  id              String   @id @default(uuid())
+  swarmId         String   @map("swarm_id")
+  findingType     String?  @map("finding_type") // 'insight', 'trend', 'opportunity', 'threat'
+  title           String?  @db.VarChar(500)
+  content         String   @db.Text
+  confidenceScore Decimal? @map("confidence_score") @db.Decimal(3, 2)
   sources         Json? // array of source references
-  createdAt       DateTime  @default(now()) @map("created_at")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   // Relations
   swarm ResearchSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
@@ -203,14 +203,14 @@ model SwarmFinding {
 // ============================================================================
 
 model StrategyCohort {
-  id             String           @id @default(uuid())
-  userId         String           @map("user_id")
+  id             String    @id @default(uuid())
+  userId         String    @map("user_id")
   name           String
-  description    String?          @db.Text
-  competitorIds  String[]         @map("competitor_ids") // array of competitor IDs
-  analysisType   String?          @map("analysis_type") // 'pricing', 'features', 'content', 'social'
-  lastAnalyzedAt DateTime?        @map("last_analyzed_at")
-  createdAt      DateTime         @default(now()) @map("created_at")
+  description    String?   @db.Text
+  competitorIds  String[]  @map("competitor_ids") // array of competitor IDs
+  analysisType   String?   @map("analysis_type") // 'pricing', 'features', 'content', 'social'
+  lastAnalyzedAt DateTime? @map("last_analyzed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
 
   // Relations
   user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -237,29 +237,29 @@ model CohortAnalysis {
 // ============================================================================
 
 model PsychographicSegment {
-  id              String            @id @default(uuid())
-  userId          String            @map("user_id")
-  segmentName     String            @map("segment_name")
-  segmentTagline  String?           @map("segment_tagline") @db.VarChar(500)
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  segmentName     String   @map("segment_name")
+  segmentTagline  String?  @map("segment_tagline") @db.VarChar(500)
   characteristics Json? // behavioral traits, pain points, motivations
-  funnelStage     String?           @map("funnel_stage") // 'awareness', 'consideration', 'decision', 'retention'
-  sizeEstimate    Int?              @map("size_estimate")
-  createdAt       DateTime          @default(now()) @map("created_at")
+  funnelStage     String?  @map("funnel_stage") // 'awareness', 'consideration', 'decision', 'retention'
+  sizeEstimate    Int?     @map("size_estimate")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   // Relations
-  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   insights SegmentInsight[]
 
   @@map("psychographic_segments")
 }
 
 model SegmentInsight {
-  id              String               @id @default(uuid())
-  segmentId       String               @map("segment_id")
-  insightType     String?              @map("insight_type") // 'pain_point', 'motivation', 'objection', 'trigger'
-  content         String               @db.Text
-  confidenceScore Decimal?             @map("confidence_score") @db.Decimal(3, 2)
-  createdAt       DateTime             @default(now()) @map("created_at")
+  id              String   @id @default(uuid())
+  segmentId       String   @map("segment_id")
+  insightType     String?  @map("insight_type") // 'pain_point', 'motivation', 'objection', 'trigger'
+  content         String   @db.Text
+  confidenceScore Decimal? @map("confidence_score") @db.Decimal(3, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
 
   // Relations
   segment PsychographicSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
@@ -272,16 +272,16 @@ model SegmentInsight {
 // ============================================================================
 
 model BreweryOutput {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  outputType  String    @map("output_type") // 'newsletter', 'brief', 'alert'
-  title       String    @db.VarChar(500)
-  content     String    @db.Text
-  sourceItems String[]  @map("source_items") // array of intelligence_item IDs
-  status      String    @default("brewing") // 'brewing', 'ready', 'delivered'
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  outputType   String    @map("output_type") // 'newsletter', 'brief', 'alert'
+  title        String    @db.VarChar(500)
+  content      String    @db.Text
+  sourceItems  String[]  @map("source_items") // array of intelligence_item IDs
+  status       String    @default("brewing") // 'brewing', 'ready', 'delivered'
   scheduledFor DateTime? @map("scheduled_for")
-  deliveredAt DateTime? @map("delivered_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  deliveredAt  DateTime? @map("delivered_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
