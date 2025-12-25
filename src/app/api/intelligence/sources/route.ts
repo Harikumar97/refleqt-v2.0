@@ -5,9 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { assert } from "@/utils/assert";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/db/prisma";
 
 /**
  * GET /api/intelligence/sources

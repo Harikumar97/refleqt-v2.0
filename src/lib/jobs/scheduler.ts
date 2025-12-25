@@ -4,9 +4,7 @@
  */
 
 import { feedFetchQueue } from "./queues";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/db/prisma";
 
 /**
  * Schedule automatic feed refreshes for all users

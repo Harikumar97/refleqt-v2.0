@@ -5,10 +5,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { assert } from "@/utils/assert";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/db/prisma";
 import { queueSingleFeed, queueFeedsForUser } from "@/lib/jobs/queues";
-
-const prisma = new PrismaClient();
 
 /**
  * POST /api/intelligence/refresh

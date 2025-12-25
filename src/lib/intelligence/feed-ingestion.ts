@@ -4,12 +4,10 @@
  */
 
 import Parser from "rss-parser";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/db/prisma";
 import { assert } from "@/utils/assert";
 import { LLMRouter } from "@/lib/llm/router/llm-router";
 import type { SafeResult } from "@/utils/safety";
-
-const prisma = new PrismaClient();
 const rssParser = new Parser({
   timeout: 10000,
   maxRedirects: 3,
