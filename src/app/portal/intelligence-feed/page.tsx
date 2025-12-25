@@ -15,8 +15,3 @@ export default function IntelligenceFeedPage() {
     </div>
   );
 }
-
-export const metadata = {
-  title: "Intelligence Feed - Refleqt",
-  description: "Competitive intelligence feed and analysis",
-};
