@@ -97,9 +97,9 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
 
   return (
     <div className="intelligence-feed">
-      <div className="feed-header">
-        <h1 className="text-3xl font-bold">Intelligence Feed</h1>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white">Intelligence Feed</h1>
+        <div className="flex gap-3">
           <AddSourceDialog userId={userId} />
           <button
             onClick={handleRefresh}

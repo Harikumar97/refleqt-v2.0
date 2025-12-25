@@ -66,13 +66,15 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Add Intelligence Source</h2>
+          <h2 className="text-2xl font-bold text-white">
+            Add Intelligence Source
+          </h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-gray-400 hover:text-white text-2xl"
           >
             ×
           </button>
@@ -83,7 +85,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           <div>
             <label
               htmlFor="sourceType"
-              className="block text-sm font-medium mb-2"
+              className="block text-sm font-medium mb-2 text-gray-300"
             >
               Source Type
             </label>
@@ -91,7 +93,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               id="sourceType"
               value={sourceType}
               onChange={(e) => setSourceType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="rss">RSS Feed</option>
@@ -114,7 +116,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           <div>
             <label
               htmlFor="sourceUrl"
-              className="block text-sm font-medium mb-2"
+              className="block text-sm font-medium mb-2 text-gray-300"
             >
               Feed URL
             </label>
@@ -123,8 +125,8 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               type="url"
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
-              placeholder="https://example.com/rss"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="https://hnrss.org/frontpage"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -133,7 +135,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           <div>
             <label
               htmlFor="sourceName"
-              className="block text-sm font-medium mb-2"
+              className="block text-sm font-medium mb-2 text-gray-300"
             >
               Name (Optional)
             </label>
@@ -142,8 +144,8 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               type="text"
               value={sourceName}
               onChange={(e) => setSourceName(e.target.value)}
-              placeholder="TechCrunch, VentureBeat, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Hacker News"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -151,7 +153,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           <div>
             <label
               htmlFor="category"
-              className="block text-sm font-medium mb-2"
+              className="block text-sm font-medium mb-2 text-gray-300"
             >
               Category
             </label>
@@ -159,7 +161,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="competitor">Competitor</option>
@@ -170,7 +172,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
+            <div className="p-3 bg-red-900/20 border border-red-800 rounded-md text-red-400 text-sm">
               {error}
             </div>
           )}
@@ -180,7 +182,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-800"
               disabled={loading}
             >
               Cancel
