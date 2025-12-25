@@ -229,10 +229,10 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON "users"
+CREATE TRIGGER update_users_updated_at BEFORE INSERT OR UPDATE ON "users"
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON "user_profiles"
+CREATE TRIGGER update_user_profiles_updated_at BEFORE INSERT OR UPDATE ON "user_profiles"
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
@@ -250,14 +250,16 @@ VALUES (
 ) ON CONFLICT ("email") DO NOTHING;
 
 -- Create user profile for test user
-INSERT INTO "user_profiles" ("id", "user_id", "company_name", "industry", "business_challenge", "obsession_score")
+INSERT INTO "user_profiles" ("id", "user_id", "company_name", "industry", "business_challenge", "obsession_score", "created_at", "updated_at")
 VALUES (
     '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000001',
     'Test Company',
     'Technology',
     'Growing market share in competitive landscape',
-    7.5
+    7.5,
+    NOW(),
+    NOW()
 ) ON CONFLICT ("user_id") DO NOTHING;
 
 -- ============================================================================
