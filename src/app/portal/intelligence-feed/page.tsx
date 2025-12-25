@@ -11,7 +11,7 @@ export default function IntelligenceFeedPage() {
   const userId = "00000000-0000-0000-0000-000000000001";
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <IntelligenceFeed userId={userId} />
     </div>
   );

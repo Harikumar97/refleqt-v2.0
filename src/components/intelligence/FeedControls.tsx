@@ -37,9 +37,9 @@ export function FeedControls({
 
   return (
     <div className="feed-controls bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 items-end">
         {/* Category Filter */}
-        <div className="flex-1">
+        <div className="w-full md:w-64">
           <label
             htmlFor="category"
             className="block text-sm font-medium mb-2 text-gray-300"
@@ -61,7 +61,7 @@ export function FeedControls({
         </div>
 
         {/* Search */}
-        <div className="flex-1">
+        <div className="flex-1 max-w-md">
           <label
             htmlFor="search"
             className="block text-sm font-medium mb-2 text-gray-300"
@@ -79,7 +79,7 @@ export function FeedControls({
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 whitespace-nowrap"
             >
               Search
             </button>
@@ -88,14 +88,14 @@ export function FeedControls({
 
         {/* Clear Filters */}
         {(category || searchQuery) && (
-          <div className="flex items-end">
+          <div>
             <button
               onClick={() => {
                 onCategoryChange(null);
                 onSearchChange("");
                 setLocalSearch("");
               }}
-              className="px-4 py-2 text-gray-300 hover:text-white underline"
+              className="px-4 py-2 text-gray-300 hover:text-white underline whitespace-nowrap"
             >
               Clear Filters
             </button>
