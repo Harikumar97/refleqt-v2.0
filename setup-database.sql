@@ -250,8 +250,9 @@ VALUES (
 ) ON CONFLICT ("email") DO NOTHING;
 
 -- Create user profile for test user
-INSERT INTO "user_profiles" ("user_id", "company_name", "industry", "business_challenge", "obsession_score")
+INSERT INTO "user_profiles" ("id", "user_id", "company_name", "industry", "business_challenge", "obsession_score")
 VALUES (
+    '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000001',
     'Test Company',
     'Technology',
