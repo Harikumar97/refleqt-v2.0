@@ -4,16 +4,26 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 declare const globalThis: {
   prismaGlobal: PrismaClient | undefined;
 } & typeof global;
 
-// Prisma 7 initialization
-// DATABASE_URL from .env.local is read automatically
-// prisma.config.ts provides the datasource configuration
+// Prisma 7 initialization with PostgreSQL adapter
 const prismaClientSingleton = () => {
+  // Create PostgreSQL connection pool
+  const pool = new Pool({
+    connectionString: process.env["DATABASE_URL"],
+  });
+
+  // Create Prisma adapter
+  const adapter = new PrismaPg(pool);
+
+  // Initialize Prisma Client with adapter
   return new PrismaClient({
+    adapter,
     log:
       process.env["NODE_ENV"] === "development" ? ["error", "warn"] : ["error"],
   });
