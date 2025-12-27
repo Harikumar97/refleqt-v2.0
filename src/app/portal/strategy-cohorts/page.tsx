@@ -1,43 +1,57 @@
+/**
+ * Strategy Cohorts Page
+ * Deep competitive analysis and strategic insights
+ * TODO: Implement competitive analysis features
+ */
+
+import { PageHeader, Card, EmptyState } from "@/components/ui";
+
 export default function StrategyCohorts(): React.ReactElement {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">
-          🎯 Strategy Cohorts
-        </h1>
-        <p className="text-gray-400">
-          Deep competitive analysis and strategic insights
-        </p>
-      </div>
+      <PageHeader
+        title="🎯 Strategy Cohorts"
+        description="Stress-test your strategy against competitors. Get AI-powered insights in under 2 minutes with confidence scores."
+        actions={
+          <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium">
+            + New Analysis
+          </button>
+        }
+      />
 
-      <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 border border-orange-800 rounded-lg p-8 text-center">
-        <div className="text-6xl mb-4">🚧</div>
-        <h2 className="text-2xl font-semibold text-white mb-2">Coming Soon</h2>
-        <p className="text-gray-300 max-w-md mx-auto">
-          Stress-test your strategy against competitors. Get AI-powered insights
-          in under 2 minutes with confidence scores.
-        </p>
-      </div>
+      <EmptyState
+        icon={<div className="text-6xl">🚧</div>}
+        title="Strategy Cohorts Coming Soon"
+        description="This feature is under development. You'll be able to analyze your competitive positioning and test strategies against market realities."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-white font-semibold mb-2">⚡ Quick Queries</h3>
+        <Card>
+          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+            <span className="text-xl">⚡</span> Quick Queries
+          </h3>
           <p className="text-sm text-gray-400">
-            Get answers in under 2 minutes
+            Get strategic insights in under 2 minutes
           </p>
-        </div>
+        </Card>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-white font-semibold mb-2">🎲 Confidence</h3>
-          <p className="text-sm text-gray-400">AI confidence scoring</p>
-        </div>
-
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-          <h3 className="text-white font-semibold mb-2">🔍 Deep Analysis</h3>
+        <Card>
+          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+            <span className="text-xl">🎲</span> Confidence Scores
+          </h3>
           <p className="text-sm text-gray-400">
-            Comprehensive competitive intel
+            AI-powered confidence scoring for every insight
           </p>
-        </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+            <span className="text-xl">🔍</span> Deep Analysis
+          </h3>
+          <p className="text-sm text-gray-400">
+            Comprehensive competitive intelligence reports
+          </p>
+        </Card>
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export default function Sidebar(): React.ReactElement {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-gray-900 text-white transition-all duration-300 ${
+      className={`fixed left-0 top-0 h-screen bg-gray-900 text-white transition-all duration-300 z-40 overflow-y-auto overflow-x-hidden ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
