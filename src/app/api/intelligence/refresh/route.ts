@@ -1,12 +1,20 @@
 /**
  * Intelligence Feed Refresh API
  * Trigger manual refresh of intelligence sources
+ * MVP: Direct ingestion (synchronous), will add BullMQ background processing later
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { assert } from "@/utils/assert";
 import prisma from "@/lib/db/prisma";
-import { queueSingleFeed, queueFeedsForUser } from "@/lib/jobs/queues";
+import {
+  ingestRSSFeed,
+  ingestAllFeedsForUser,
+} from "@/lib/intelligence/feed-ingestion";
+import { LLMRouter } from "@/lib/llm/router/llm-router";
+
+// Initialize LLM router from environment variables
+const llmRouter = LLMRouter.fromEnv();
 
 /**
  * POST /api/intelligence/refresh
@@ -31,15 +39,22 @@ export async function POST(request: NextRequest) {
 
       assert(source !== null, "Source not found or inactive");
 
-      // Queue BullMQ job for this source
-      await queueSingleFeed(sourceId, userId);
+      // Directly ingest the feed (synchronous for MVP)
+      const result = await ingestRSSFeed(sourceId, userId, llmRouter);
+
+      if (!result.success) {
+        throw result.error;
+      }
 
       return NextResponse.json({
         success: true,
-        message: `Refresh queued for source: ${source.sourceName ?? source.sourceUrl}`,
+        message: `Refreshed ${source.sourceName ?? source.sourceUrl}`,
         data: {
           sourceId: source.id,
-          queuedAt: new Date().toISOString(),
+          itemsProcessed: result.value.itemsProcessed,
+          itemsAdded: result.value.itemsAdded,
+          itemsSkipped: result.value.itemsSkipped,
+          errors: result.value.errors,
         },
       });
     } else {
@@ -53,20 +68,32 @@ export async function POST(request: NextRequest) {
 
       assert(sources.length > 0, "No active sources found");
 
-      // Queue BullMQ jobs for all sources
-      const queuedCount = await queueFeedsForUser(userId);
+      // Directly ingest all feeds (synchronous for MVP)
+      const result = await ingestAllFeedsForUser(userId, llmRouter);
+
+      if (!result.success) {
+        throw result.error;
+      }
+
+      const totalAdded = result.value.reduce((sum, r) => sum + r.itemsAdded, 0);
+      const totalProcessed = result.value.reduce(
+        (sum, r) => sum + r.itemsProcessed,
+        0
+      );
 
       return NextResponse.json({
         success: true,
-        message: `Refresh queued for ${queuedCount} sources`,
+        message: `Refreshed ${sources.length} sources, added ${totalAdded} items`,
         data: {
-          sourcesQueued: queuedCount,
-          queuedAt: new Date().toISOString(),
+          sourcesRefreshed: sources.length,
+          totalItemsProcessed: totalProcessed,
+          totalItemsAdded: totalAdded,
+          results: result.value,
         },
       });
     }
   } catch (error) {
-    console.error("Error queueing feed refresh:", error);
+    console.error("Error refreshing feeds:", error);
     return NextResponse.json(
       {
         success: false,
