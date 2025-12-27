@@ -58,9 +58,9 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        className="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
       >
-        Add Source
+        + Add Source
       </button>
     );
   }

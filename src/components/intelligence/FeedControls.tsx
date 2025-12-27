@@ -36,32 +36,10 @@ export function FeedControls({
   }
 
   return (
-    <div className="feed-controls bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-      <div className="flex flex-col md:flex-row gap-4 items-end">
-        {/* Category Filter */}
-        <div className="w-full md:w-64">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium mb-2 text-gray-300"
-          >
-            Category
-          </label>
-          <select
-            id="category"
-            value={category ?? ""}
-            onChange={(e) => onCategoryChange(e.target.value || null)}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {categories.map((cat) => (
-              <option key={cat.value ?? "all"} value={cat.value ?? ""}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Search */}
-        <div className="flex-1 max-w-md">
+    <div className="feed-controls bg-gray-800 border border-gray-700 rounded-lg p-5 mb-6">
+      <div className="space-y-4">
+        {/* Search Bar - Primary action */}
+        <div>
           <label
             htmlFor="search"
             className="block text-sm font-medium mb-2 text-gray-300"
@@ -75,32 +53,55 @@ export function FeedControls({
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search intelligence items..."
-              className="flex-1 px-3 py-2 bg-gray-900 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2.5 bg-gray-900 border border-gray-600 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 whitespace-nowrap"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
             >
               Search
             </button>
           </form>
         </div>
 
-        {/* Clear Filters */}
-        {(category || searchQuery) && (
-          <div>
+        {/* Filters Row */}
+        <div className="flex items-center gap-4">
+          {/* Category Filter */}
+          <div className="w-56">
+            <label
+              htmlFor="category"
+              className="block text-xs font-medium mb-1.5 text-gray-400"
+            >
+              Filter by Category
+            </label>
+            <select
+              id="category"
+              value={category ?? ""}
+              onChange={(e) => onCategoryChange(e.target.value || null)}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-white text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {categories.map((cat) => (
+                <option key={cat.value ?? "all"} value={cat.value ?? ""}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Clear Filters */}
+          {(category || searchQuery) && (
             <button
               onClick={() => {
                 onCategoryChange(null);
                 onSearchChange("");
                 setLocalSearch("");
               }}
-              className="px-4 py-2 text-gray-300 hover:text-white underline whitespace-nowrap"
+              className="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors whitespace-nowrap mt-6"
             >
-              Clear Filters
+              Clear All Filters
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

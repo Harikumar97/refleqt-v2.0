@@ -96,15 +96,23 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
   }
 
   return (
-    <div className="intelligence-feed">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">Intelligence Feed</h1>
+    <div className="intelligence-feed space-y-6">
+      {/* Header Section */}
+      <div className="flex items-start justify-between pb-4 border-b border-gray-800">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-1">
+            Intelligence Feed
+          </h1>
+          <p className="text-sm text-gray-400">
+            Real-time competitive intelligence and market trends
+          </p>
+        </div>
         <div className="flex gap-3">
           <AddSourceDialog userId={userId} />
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
           >
             {loading ? "Refreshing..." : "Refresh All"}
           </button>
