@@ -23,10 +23,24 @@ export function FeedItem({ item }: FeedItemProps) {
     ? formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true })
     : "Unknown date";
 
+  // Helper to convert relevanceScore to number (handles both Decimal objects and numbers)
+  const getRelevanceScore = (): number | null => {
+    if (!item.relevanceScore) return null;
+    if (typeof item.relevanceScore === "number") return item.relevanceScore;
+    if (
+      typeof item.relevanceScore === "object" &&
+      "toNumber" in item.relevanceScore
+    ) {
+      return item.relevanceScore.toNumber();
+    }
+    return Number(item.relevanceScore);
+  };
+
+  const relevanceScore = getRelevanceScore();
   const relevanceColor =
-    item.relevanceScore && item.relevanceScore.toNumber() >= 0.8
+    relevanceScore !== null && relevanceScore >= 0.8
       ? "text-green-600"
-      : item.relevanceScore && item.relevanceScore.toNumber() >= 0.5
+      : relevanceScore !== null && relevanceScore >= 0.5
         ? "text-yellow-600"
         : "text-gray-600";
 
@@ -69,9 +83,9 @@ export function FeedItem({ item }: FeedItemProps) {
         </div>
 
         <div className="ml-4">
-          {item.relevanceScore && (
+          {relevanceScore !== null && (
             <div className={`text-lg font-bold ${relevanceColor}`}>
-              {(item.relevanceScore.toNumber() * 10).toFixed(1)}
+              {(relevanceScore * 10).toFixed(1)}
             </div>
           )}
         </div>
