@@ -66,8 +66,8 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-full max-w-lg p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
+      <div className="bg-slate-800 border-2 border-slate-600 rounded-lg shadow-2xl w-full max-w-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">
             Add Intelligence Source
@@ -93,7 +93,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               id="sourceType"
               value={sourceType}
               onChange={(e) => setSourceType(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900 border-2 border-slate-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="rss">RSS Feed</option>
@@ -126,7 +126,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
               placeholder="https://hnrss.org/frontpage"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900 border-2 border-slate-600 text-white placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -145,7 +145,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               value={sourceName}
               onChange={(e) => setSourceName(e.target.value)}
               placeholder="Hacker News"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900 border-2 border-slate-600 text-white placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -161,7 +161,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900 border-2 border-slate-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="competitor">Competitor</option>
@@ -172,7 +172,7 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-900/20 border border-red-800 rounded-md text-red-400 text-sm">
+            <div className="p-3 bg-red-950 border-2 border-red-800 rounded-md text-red-300 text-sm">
               {error}
             </div>
           )}
@@ -182,14 +182,14 @@ export function AddSourceDialog({ userId }: AddSourceDialogProps) {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-800"
+              className="flex-1 px-4 py-2 bg-slate-700 border-2 border-slate-600 text-white rounded-md hover:bg-slate-600"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-blue-600 border-2 border-blue-500 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Adding..." : "Add Source"}
