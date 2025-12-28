@@ -28,7 +28,11 @@ model User {
   competitors         Competitor[]
   intelligenceSources IntelligenceSource[]
   intelligenceItems   IntelligenceItem[]
+  researchGoals       ResearchGoal[]
+  smartTrackers       SmartTracker[]
   researchSwarms      ResearchSwarm[]
+  synthesizedInsights SynthesizedInsight[]
+  knowledgeNodes      KnowledgeNode[]
   strategyCohorts     StrategyCohort[]
   psychographicSegs   PsychographicSegment[]
   breweryOutputs      BreweryOutput[]
@@ -160,31 +164,84 @@ model IntelligenceItem {
 }
 
 // ============================================================================
-// Research Swarms
+// Research Swarms - MCP Architecture
 // ============================================================================
 
-model ResearchSwarm {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  query       String    @db.Text
-  swarmType   String    @map("swarm_type") // 'competitive', 'market', 'technical', 'customer'
-  status      String    @default("pending") // 'pending', 'running', 'completed', 'failed'
-  progressPct Int       @default(0) @map("progress_percent")
-  agentConfig Json?     @map("agent_config") // MCP agent configuration
-  startedAt   DateTime? @map("started_at")
-  completedAt DateTime? @map("completed_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
+// Research Goals (replaces simple RSS sources)
+model ResearchGoal {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  goalTitle       String    @map("goal_title") @db.VarChar(500)
+  goalQuery       String    @map("goal_query") @db.Text
+  goalType        String    @map("goal_type") // 'competitive', 'market', 'customer', 'industry'
+  mcpChainConfig  Json?     @map("mcp_chain_config") // MCP chain configuration
+  isActive        Boolean   @default(true) @map("is_active")
+  monitoringLevel String    @default("daily") @map("monitoring_level") // 'realtime', 'hourly', 'daily'
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  findings SwarmFinding[]
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  swarms     ResearchSwarm[]
+  trackers   SmartTracker[]
 
+  @@map("research_goals")
+}
+
+// Smart Trackers for continuous monitoring
+model SmartTracker {
+  id               String    @id @default(uuid())
+  goalId           String    @map("goal_id")
+  userId           String    @map("user_id")
+  updateInterval   Int       @map("update_interval") // seconds between checks
+  maxInsights      Int       @default(10) @map("max_insights") // finite introspect bound
+  lastExecutedAt   DateTime? @map("last_executed_at")
+  nextExecutionAt  DateTime? @map("next_execution_at")
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  goal      ResearchGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, nextExecutionAt])
+  @@map("smart_trackers")
+}
+
+// MCP Swarm Executions
+model ResearchSwarm {
+  id               String    @id @default(uuid())
+  goalId           String?   @map("goal_id") // nullable for ad-hoc queries
+  userId           String    @map("user_id")
+  query            String    @db.Text
+  swarmType        String    @map("swarm_type") // 'competitive', 'market', 'technical', 'customer'
+  swarmSize        String    @default("small") @map("swarm_size") // 'small' (3 agents), 'large' (8 agents)
+  status           String    @default("pending") // 'pending', 'running', 'synthesizing', 'completed', 'failed'
+  progressPct      Int       @default(0) @map("progress_percent")
+  mcpChainUsed     Json?     @map("mcp_chain_used") // actual MCP chain executed
+  agentResults     Json?     @map("agent_results") // raw agent outputs
+  synthesisApplied Boolean   @default(false) @map("synthesis_applied")
+  executionTimeMs  Int?      @map("execution_time_ms")
+  startedAt        DateTime? @map("started_at")
+  completedAt      DateTime? @map("completed_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  goal            ResearchGoal?       @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  findings        SwarmFinding[]
+  synthesizedData SynthesizedInsight[]
+
+  @@index([userId, status])
+  @@index([createdAt(sort: Desc)])
   @@map("research_swarms")
 }
 
+// Raw findings (before synthesis)
 model SwarmFinding {
   id              String   @id @default(uuid())
   swarmId         String   @map("swarm_id")
+  agentId         String?  @map("agent_id") // which agent found this
   findingType     String?  @map("finding_type") // 'insight', 'trend', 'opportunity', 'threat'
   title           String?  @db.VarChar(500)
   content         String   @db.Text
@@ -196,6 +253,58 @@ model SwarmFinding {
   swarm ResearchSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
 
   @@map("swarm_findings")
+}
+
+// Synthesized Insights (finite introspect output - max 10)
+model SynthesizedInsight {
+  id                String                       @id @default(uuid())
+  swarmId           String                       @map("swarm_id")
+  userId            String                       @map("user_id")
+  title             String                       @db.VarChar(500)
+  content           String                       @db.Text
+  hierarchyLevel    String                       @map("hierarchy_level") // 'strategic', 'tactical', 'operational'
+  priorityScore     Decimal                      @map("priority_score") @db.Decimal(3, 2) // 0.0-1.0
+  relevanceScore    Decimal                      @map("relevance_score") @db.Decimal(3, 2) // 0.0-1.0
+  isActionable      Boolean                      @default(false) @map("is_actionable")
+  actionItems       String[] // max 5 action items
+  sourceFindingIds  String[]                     @map("source_finding_ids") // references to SwarmFindings
+  embedding         Unsupported("vector(1536)")? // for Knowledge Traverse
+  psychographicTags String[]                     @map("psychographic_tags")
+  displayPosition   Int?                         @map("display_position") // 1-10 for finite introspect
+  dismissedAt       DateTime?                    @map("dismissed_at")
+  createdAt         DateTime                     @default(now()) @map("created_at")
+
+  // Relations
+  swarm ResearchSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, hierarchyLevel, priorityScore(sort: Desc)])
+  @@index([userId, dismissedAt])
+  @@map("synthesized_insights")
+}
+
+// Knowledge Traverse Hierarchy Nodes
+model KnowledgeNode {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  parentId       String?  @map("parent_id") // for tree structure
+  nodeTitle      String   @map("node_title") @db.VarChar(500)
+  nodeContent    String?  @map("node_content") @db.Text
+  hierarchyLevel String   @map("hierarchy_level") // 'strategic', 'tactical', 'operational'
+  depth          Int      @default(0) // tree depth (0 = root)
+  insightIds     String[] @map("insight_ids") // linked insights
+  relevanceScore Decimal  @map("relevance_score") @db.Decimal(3, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   KnowledgeNode?  @relation("KnowledgeHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children KnowledgeNode[] @relation("KnowledgeHierarchy")
+
+  @@index([userId, hierarchyLevel])
+  @@index([parentId])
+  @@map("knowledge_nodes")
 }
 
 // ============================================================================
