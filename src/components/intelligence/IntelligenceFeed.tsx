@@ -103,7 +103,7 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
   return (
     <div className="intelligence-feed max-w-4xl mx-auto space-y-6">
       {/* Guideline #1: Provide detailed task information upfront */}
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+      <div className="bg-slate-800 border-2 border-slate-700 rounded-lg p-6 shadow-xl">
         <h1 className="text-2xl font-bold text-white mb-2">
           Intelligence Feed
         </h1>
@@ -271,7 +271,7 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
 
       {/* Empty state with clear guidance */}
       {!loading && !error && items.length === 0 && (
-        <div className="text-center py-16 bg-gray-800 border border-gray-700 rounded-lg">
+        <div className="text-center py-16 bg-slate-800 border-2 border-slate-700 rounded-lg shadow-lg">
           <svg
             className="mx-auto h-12 w-12 text-gray-600 mb-4"
             fill="none"

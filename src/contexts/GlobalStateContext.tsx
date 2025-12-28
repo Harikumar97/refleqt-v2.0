@@ -3,9 +3,21 @@
 /**
  * Global State Context
  * Manages application-wide state like obsession score, notifications, etc.
+ *
+ * Backend Integration:
+ * - Initializes obsession score from UserProfile.obsessionScore
+ * - Persists updates via API (TODO: add persistence)
+ * - Manages transient UI state (notifications, active feature)
  */
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { useUser } from "./UserContext";
 
 interface GlobalState {
   obsessionScore: number;
@@ -39,13 +51,16 @@ export function GlobalStateProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const { profile, loading: userLoading } = useUser();
+
   const [state, setState] = useState<GlobalState>({
-    obsessionScore: 8.4,
+    obsessionScore: 8.4, // Will be updated from backend
     obsessionLevel: "Highly Focused",
     notifications: [],
     activeFeature: null,
   });
 
+  // Calculate obsession level from score
   const getObsessionLevel = useCallback((score: number): string => {
     if (score < 3) return "Curious";
     if (score < 5) return "Engaged";
@@ -53,6 +68,20 @@ export function GlobalStateProvider({
     if (score < 9) return "Obsessed";
     return "Hyper-Obsessed";
   }, []);
+
+  // Initialize obsession score from backend when profile loads
+  useEffect(() => {
+    if (!userLoading && profile?.obsessionScore !== undefined) {
+      const score = Number(profile.obsessionScore);
+      const level = getObsessionLevel(score);
+
+      setState((prev) => ({
+        ...prev,
+        obsessionScore: score,
+        obsessionLevel: level,
+      }));
+    }
+  }, [profile?.obsessionScore, userLoading, getObsessionLevel]);
 
   const updateObsessionScore = useCallback(
     (increase: number, action: string) => {

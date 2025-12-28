@@ -3,6 +3,11 @@
 /**
  * Enhanced Sidebar Component
  * Features company header, obsession widget, and sub-navigation
+ *
+ * Backend Integration:
+ * - User data from UserContext (useUser hook)
+ * - Profile data from Prisma UserProfile
+ * - Real-time status updates (TODO: integrate system status API)
  */
 
 import Link from "next/link";
@@ -11,12 +16,18 @@ import { CompanyHeader } from "./CompanyHeader";
 import { ObsessionWidget } from "./ObsessionWidget";
 import { NavItemWithSub } from "./SubNavigation";
 import { Badge, NavStatus } from "@/components/ui";
+import { useUser } from "@/contexts/UserContext";
 
 export default function Sidebar(): React.ReactElement {
   const pathname = usePathname();
+  const { user, profile, loading: userLoading } = useUser();
+
+  // Calculate avatar initial from user data
+  const avatarInitial =
+    user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white z-40 overflow-y-auto overflow-x-hidden custom-scrollbar-dark flex flex-col">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white z-40 overflow-y-auto overflow-x-hidden custom-scrollbar-dark flex flex-col shadow-2xl border-r border-gray-700">
       {/* Company Header */}
       <CompanyHeader />
 
@@ -140,14 +151,14 @@ export default function Sidebar(): React.ReactElement {
       <div className="p-4 border-t border-white/10 mt-auto">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 gradient-brewery rounded-full flex items-center justify-center text-white text-xs font-bold">
-            A
+            {userLoading ? "..." : avatarInitial}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-semibold text-white truncate">
-              Alex Chen
+              {userLoading ? "Loading..." : (user?.name ?? "User")}
             </div>
             <div className="text-[10px] text-gray-400 truncate">
-              Founder • TaskFlow
+              {userLoading ? "..." : (profile?.companyName ?? "Company")}
             </div>
           </div>
         </div>
