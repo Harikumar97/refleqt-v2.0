@@ -2,97 +2,57 @@
 
 /**
  * Intelligence Feed Component
- * Beautiful competitive intelligence dashboard with inline CSS styling
+ * Beautiful competitive intelligence dashboard with Research Swarm integration
  */
 
 import { useState, useEffect } from "react";
-import { FeedItem } from "./FeedItem";
-import { FeedControls } from "./FeedControls";
-import { AddSourceDialog } from "./AddSourceDialog";
-import type { IntelligenceItem } from "@prisma/client";
+import { ConfigureResearchGoalDialog } from "../research-swarm/ConfigureResearchGoalDialog";
+import { FiniteIntrospectDisplay } from "../research-swarm/FiniteIntrospectDisplay";
+import { ObsessionScoreMeter } from "../research-swarm/ObsessionScoreMeter";
+import { KnowledgeTraverseHierarchy } from "../research-swarm/KnowledgeTraverseHierarchy";
 
 interface IntelligenceFeedProps {
   userId: string;
 }
 
 export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
-  const [items, setItems] = useState<IntelligenceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [category, setCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [obsessionScore, setObsessionScore] = useState(5);
+  const [activeView, setActiveView] = useState<"insights" | "hierarchy">("insights");
 
-  // Fetch intelligence items
+  // Fetch user profile to get obsession score
   useEffect(() => {
-    async function fetchItems() {
+    async function fetchUserProfile() {
       setLoading(true);
       setError(null);
 
       try {
-        const params = new URLSearchParams({
-          userId,
-          limit: "50",
-          offset: "0",
-        });
-
-        if (category) {
-          params.append("category", category);
-        }
-
-        if (searchQuery) {
-          params.append("query", searchQuery);
-        }
-
-        const response = await fetch(
-          `/api/intelligence/items?${params.toString()}`
-        );
+        const response = await fetch(`/api/user/profile?userId=${userId}`);
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch items: ${response.statusText}`);
+          throw new Error("Failed to fetch user profile");
         }
 
         const result = await response.json();
 
-        if (result.success) {
-          setItems(result.data.items);
-        } else {
-          throw new Error(result.error ?? "Unknown error");
+        if (result.success && result.data.profile) {
+          const score = Number(result.data.profile.obsessionScore) || 5;
+          setObsessionScore(score);
         }
       } catch (err) {
+        console.error("Error fetching user profile:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchItems();
-  }, [userId, category, searchQuery]);
+    fetchUserProfile();
+  }, [userId]);
 
-  // Refresh all feeds
-  async function handleRefresh() {
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/intelligence/refresh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error ?? "Refresh failed");
-      }
-
-      // Wait a few seconds then reload items
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Refresh failed");
-      setLoading(false);
-    }
+  function handleObsessionScoreChange(newScore: number) {
+    setObsessionScore(newScore);
   }
 
   return (
@@ -317,109 +277,95 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
           flex-direction: column;
           gap: 16px;
         }
+
+        .content-grid {
+          display: grid;
+          grid-template-columns: 400px 1fr;
+          gap: 24px;
+          align-items: start;
+        }
+
+        .left-column {
+          position: sticky;
+          top: 32px;
+        }
+
+        .right-column {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .view-switcher {
+          display: flex;
+          gap: 12px;
+          padding: 16px;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .view-button {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 14px 24px;
+          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+          border: 2px solid #e5e7eb;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .view-button:hover {
+          border-color: #8b5cf6;
+          transform: translateY(-2px);
+        }
+
+        .view-button.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: #667eea;
+          color: white;
+          box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-icon {
+          font-size: 20px;
+        }
+
+        @media (max-width: 1200px) {
+          .content-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .left-column {
+            position: relative;
+            top: 0;
+          }
+        }
       `}</style>
 
       <div className="intelligence-feed-container">
+        {/* Header Section */}
         <div className="feed-header-card">
-          <h1>Intelligence Feed 📡</h1>
+          <h1>Intelligence Feed ✨</h1>
           <p>
-            Track competitive intelligence from RSS feeds, blogs, and news
-            sources
+            AI-powered competitive intelligence with Research Swarm technology
           </p>
-
-          {/* Getting started info box for new users */}
-          {items.length === 0 && !loading && !error && (
-            <div className="info-box">
-              <div className="info-box-header">
-                <svg
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    color: "#3b82f6",
-                    flexShrink: 0,
-                    marginTop: "2px",
-                  }}
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <div style={{ flex: 1 }}>
-                  <h3>Getting Started - Follow These Steps:</h3>
-                  <ol>
-                    <li>
-                      Click <strong>"+ Add Source"</strong> button below to add
-                      your first intelligence source
-                    </li>
-                    <li>
-                      Enter an RSS feed URL (example:
-                      https://hnrss.org/frontpage)
-                    </li>
-                    <li>Give it a name and select a category</li>
-                    <li>
-                      Click <strong>"Refresh All"</strong> to fetch the latest
-                      items from your sources
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Action buttons */}
           <div className="action-buttons">
-            <AddSourceDialog userId={userId} />
-            <button
-              onClick={handleRefresh}
-              disabled={loading}
-              className="refresh-button"
-              title="Fetch latest items from all your sources"
-            >
-              {loading ? (
-                <>
-                  <div
-                    className="loading-spinner"
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderWidth: "3px",
-                    }}
-                  ></div>
-                  <span>Refreshing...</span>
-                </>
-              ) : (
-                <>
-                  <svg
-                    style={{ width: "20px", height: "20px" }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  <span>Refresh All</span>
-                </>
-              )}
-            </button>
+            <ConfigureResearchGoalDialog
+              userId={userId}
+              obsessionScore={obsessionScore}
+            />
           </div>
         </div>
-
-        {/* Search and filter controls */}
-        <FeedControls
-          category={category}
-          onCategoryChange={setCategory}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
 
         {/* Error state */}
         {error && (
@@ -442,7 +388,7 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
                 />
               </svg>
               <div style={{ flex: 1 }}>
-                <h3>Error Loading Intelligence Items</h3>
+                <h3>Error Loading Profile</h3>
                 <p>{error}</p>
                 <p className="error-help">
                   <strong>What to do:</strong> Try refreshing the page. If the
@@ -458,48 +404,52 @@ export function IntelligenceFeed({ userId }: IntelligenceFeedProps) {
         {loading && !error && (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p className="loading-text">Loading intelligence items...</p>
+            <p className="loading-text">Loading intelligence system...</p>
           </div>
         )}
 
-        {/* Empty state */}
-        {!loading && !error && items.length === 0 && (
-          <div className="empty-state">
-            <svg
-              className="empty-state-icon"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <h3>No Intelligence Items Yet</h3>
-            <p>
-              Add sources using the "+ Add Source" button above, then click
-              "Refresh All" to fetch items
-            </p>
-          </div>
-        )}
+        {/* Main Content - Two Column Layout */}
+        {!loading && !error && (
+          <>
+            <div className="content-grid">
+              {/* Left Column: Obsession Meter */}
+              <div className="left-column">
+                <ObsessionScoreMeter
+                  userId={userId}
+                  initialScore={obsessionScore}
+                  onScoreChange={handleObsessionScoreChange}
+                />
+              </div>
 
-        {/* Feed items */}
-        {!loading && !error && items.length > 0 && (
-          <div className="feed-items-container">
-            <div className="feed-items-header">
-              <p className="feed-items-count">
-                Showing {items.length} item{items.length !== 1 ? "s" : ""}
-              </p>
+              {/* Right Column: View Switcher + Content */}
+              <div className="right-column">
+                {/* View Switcher */}
+                <div className="view-switcher">
+                  <button
+                    className={`view-button ${activeView === "insights" ? "active" : ""}`}
+                    onClick={() => setActiveView("insights")}
+                  >
+                    <span className="view-icon">✨</span>
+                    <span>Finite Insights</span>
+                  </button>
+                  <button
+                    className={`view-button ${activeView === "hierarchy" ? "active" : ""}`}
+                    onClick={() => setActiveView("hierarchy")}
+                  >
+                    <span className="view-icon">🌳</span>
+                    <span>Knowledge Traverse</span>
+                  </button>
+                </div>
+
+                {/* Content based on active view */}
+                {activeView === "insights" ? (
+                  <FiniteIntrospectDisplay userId={userId} />
+                ) : (
+                  <KnowledgeTraverseHierarchy userId={userId} />
+                )}
+              </div>
             </div>
-            <div className="feed-items-list">
-              {items.map((item) => (
-                <FeedItem key={item.id} item={item} />
-              ))}
-            </div>
-          </div>
+          </>
         )}
       </div>
     </>

@@ -73,7 +73,7 @@ export class MCPChainBuilder {
     const goalType = this.inferGoalType(query);
 
     // Get base template
-    const template = this.CHAIN_TEMPLATES[goalType] || this.CHAIN_TEMPLATES.competitive_analysis;
+    const template = this.CHAIN_TEMPLATES[goalType] || this.CHAIN_TEMPLATES["competitive_analysis"];
 
     // Customize based on obsession score
     const swarmSize = userContext.obsessionScore >= 7 ? "large" : "small";
@@ -82,10 +82,10 @@ export class MCPChainBuilder {
     const maxOutput = Math.min(10, Math.floor(userContext.obsessionScore) + 3);
 
     return {
-      ...template,
       goal: query,
-      swarmSize,
+      steps: template.steps,
       maxOutput,
+      swarmSize,
     };
   }
 

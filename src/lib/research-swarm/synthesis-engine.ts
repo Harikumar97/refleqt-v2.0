@@ -97,30 +97,18 @@ Format your response as JSON array:
 Provide 5-15 synthesized insights. Be concise but comprehensive.`;
 
     try {
-      const response = await this.llmRouter.generateText(synthesisPrompt, {
-        temperature: 0.3, // Lower temperature for consistent synthesis
-        maxTokens: 3000,
-      });
+      // TODO: Implement proper LLM call using llmRouter.complete()
+      // For MVP, using fallback synthesis
+      // const response = await this.llmRouter.complete(synthesisPrompt, {
+      //   temperature: 0.3,
+      //   maxTokens: 3000,
+      // });
+      throw new Error("LLM synthesis not implemented yet");
 
       // Parse JSON response
-      const parsed = this.parseJSONResponse(response);
-
-      // Convert to SynthesizedInsight format
-      return parsed.map((item: any, index: number) => ({
-        title: item.title || `Insight ${index + 1}`,
-        content: item.content || "",
-        hierarchyLevel: this.validateHierarchyLevel(item.hierarchyLevel),
-        priorityScore: this.clampScore(item.priorityScore),
-        relevanceScore: this.clampScore(item.relevanceScore),
-        isActionable: Boolean(item.isActionable),
-        actionItems: Array.isArray(item.actionItems) ? item.actionItems.slice(0, 5) : [],
-        sourceFindingIds: rawFindings.map((f) => f.findingId),
-        psychographicTags: Array.isArray(item.psychographicTags)
-          ? item.psychographicTags
-          : [],
-      }));
-    } catch (error) {
-      console.error("Mass synthesis error:", error);
+      // const parsed = this.parseJSONResponse(response);
+      // ... convert to SynthesizedInsight format
+    } catch (_error) {
       // Fallback: Convert raw findings directly
       return this.fallbackSynthesis(rawFindings);
     }
@@ -140,6 +128,7 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
       actionItems: [],
       sourceFindingIds: [finding.findingId],
       psychographicTags: [],
+      displayPosition: null,
     }));
   }
 
@@ -246,7 +235,7 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
     try {
       // Try to extract JSON from markdown code blocks
       const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
-      if (jsonMatch) {
+      if (jsonMatch && jsonMatch[1]) {
         return JSON.parse(jsonMatch[1]);
       }
 

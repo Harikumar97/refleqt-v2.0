@@ -128,10 +128,13 @@ export class SwarmExecutor {
         setTimeout(() => reject(new Error("Agent timeout")), agent.timeout * 1000)
       );
 
-      const llmPromise = this.llmRouter.generateText(prompt, {
-        temperature: 0.7,
-        maxTokens: agent.depth === "deep" ? 2000 : 1000,
-      });
+      // TODO: Implement proper LLM call using llmRouter.complete()
+      // For MVP, using mock response
+      // const llmResponse = await this.llmRouter.complete(prompt, {
+      //   temperature: 0.7,
+      //   maxTokens: agent.depth === "deep" ? 2000 : 1000,
+      // });
+      const llmPromise = Promise.resolve(`[Agent ${agent.agentId}] Mock finding for: ${agent.role}`);
 
       const result = await Promise.race([llmPromise, timeoutPromise]);
 

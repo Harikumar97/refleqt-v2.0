@@ -18,11 +18,11 @@ import prisma from "@/lib/db/prisma";
 // Returns current user and their profile
 // ============================================================================
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // TODO: Get userId from NextAuth session
-    // For now, using test user ID from database setup
-    const userId = "00000000-0000-0000-0000-000000000001";
+    // Get userId from query params or use test user ID
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get("userId") || "00000000-0000-0000-0000-000000000001";
 
     // Fetch user with profile
     const user = await prisma.user.findUnique({
@@ -56,14 +56,34 @@ export async function GET(_request: NextRequest) {
       );
     }
 
+    // Create default profile if it doesn't exist
     if (!user.profile) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "User profile not found. Please complete onboarding.",
+      const newProfile = await prisma.userProfile.create({
+        data: {
+          userId,
+          obsessionScore: 5.0, // Default obsession score
+          companyName: "",
+          industry: "",
         },
-        { status: 404 }
-      );
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            createdAt: user.createdAt.toISOString(),
+          },
+          profile: {
+            ...newProfile,
+            obsessionScore: Number(newProfile.obsessionScore),
+            createdAt: newProfile.createdAt.toISOString(),
+            updatedAt: newProfile.updatedAt.toISOString(),
+          },
+        },
+      });
     }
 
     // Convert Decimal to number for JSON serialization

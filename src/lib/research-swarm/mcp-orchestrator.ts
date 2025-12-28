@@ -92,7 +92,7 @@ export class MCPOrchestrator {
    * For Smart Trackers that run on schedule
    */
   async executeResearchGoal(
-    goalTitle: string,
+    _goalTitle: string,
     goalQuery: string,
     mcpChainConfig: MCPChain | null,
     userContext: UserContext
@@ -160,10 +160,10 @@ export class MCPOrchestrator {
       extreme: { interval: 300, maxItems: 10 }, // 5 min, 10 items (score 9-10)
     };
 
-    if (obsessionScore >= 9) return frequencies.extreme;
-    if (obsessionScore >= 7) return frequencies.high;
-    if (obsessionScore >= 4) return frequencies.medium;
-    return frequencies.low;
+    if (obsessionScore >= 9) return frequencies["extreme"];
+    if (obsessionScore >= 7) return frequencies["high"];
+    if (obsessionScore >= 4) return frequencies["medium"];
+    return frequencies["low"];
   }
 
   /**
