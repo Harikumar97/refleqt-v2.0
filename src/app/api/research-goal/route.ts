@@ -21,10 +21,23 @@ export async function GET(request: NextRequest) {
       where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
-        _count: {
+        swarms: {
           select: {
-            swarms: true,
-            trackers: true,
+            id: true,
+            executionStatus: true,
+            _count: {
+              select: {
+                insights: true,
+              },
+            },
+          },
+        },
+        trackers: {
+          select: {
+            id: true,
+            updateInterval: true,
+            maxInsights: true,
+            isActive: true,
           },
         },
       },
@@ -32,17 +45,23 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: goals.map((goal) => ({
-        id: goal.id,
-        goalTitle: goal.goalTitle,
-        goalQuery: goal.goalQuery,
-        goalType: goal.goalType,
-        monitoringLevel: goal.monitoringLevel,
-        isActive: goal.isActive,
-        swarmCount: goal._count.swarms,
-        hasTracker: goal._count.trackers > 0,
-        createdAt: goal.createdAt,
-      })),
+      data: {
+        goals: goals.map((goal) => ({
+          id: goal.id,
+          goalTitle: goal.goalTitle,
+          goalQuery: goal.goalQuery,
+          goalType: goal.goalType,
+          monitoringLevel: goal.monitoringLevel,
+          isActive: goal.isActive,
+          createdAt: goal.createdAt.toISOString(),
+          swarms: goal.swarms.map((s) => ({
+            id: s.id,
+            executionStatus: s.executionStatus,
+            insightCount: s._count.insights,
+          })),
+          trackers: goal.trackers,
+        })),
+      },
     });
   } catch (error) {
     console.error("Error fetching research goals:", error);
