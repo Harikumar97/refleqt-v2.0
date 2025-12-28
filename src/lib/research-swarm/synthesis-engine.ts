@@ -97,18 +97,38 @@ Format your response as JSON array:
 Provide 5-15 synthesized insights. Be concise but comprehensive.`;
 
     try {
-      // TODO: Implement proper LLM call using llmRouter.complete()
-      // For MVP, using fallback synthesis
-      // const response = await this.llmRouter.complete(synthesisPrompt, {
-      //   temperature: 0.3,
-      //   maxTokens: 3000,
-      // });
-      throw new Error("LLM synthesis not implemented yet");
+      // Execute LLM synthesis
+      const llmResult = await this.llmRouter.complete({
+        task: "insight_generation",
+        prompt: synthesisPrompt,
+        systemPrompt: "You are an expert business intelligence analyst. Always respond with valid JSON arrays.",
+        maxTokens: 3000,
+        temperature: 0.3, // Lower temperature for consistent synthesis
+      });
 
-      // Parse JSON response
-      // const parsed = this.parseJSONResponse(response);
-      // ... convert to SynthesizedInsight format
-    } catch (_error) {
+      if (!llmResult.success) {
+        console.warn("LLM synthesis failed, using fallback:", llmResult.error?.message);
+        return this.fallbackSynthesis(rawFindings);
+      }
+
+      // Parse JSON response from LLM
+      const parsed = this.parseJSONResponse(llmResult.data.content);
+
+      // Convert to SynthesizedInsight format
+      return parsed.map((item: any) => ({
+        title: item.title || "Untitled Insight",
+        content: item.content || "",
+        hierarchyLevel: this.validateHierarchyLevel(item.hierarchyLevel),
+        priorityScore: this.clampScore(item.priorityScore),
+        relevanceScore: this.clampScore(item.relevanceScore),
+        isActionable: Boolean(item.isActionable),
+        actionItems: Array.isArray(item.actionItems) ? item.actionItems.slice(0, 5) : [],
+        sourceFindingIds: rawFindings.map((f) => f.findingId),
+        psychographicTags: Array.isArray(item.psychographicTags) ? item.psychographicTags : [],
+        displayPosition: null,
+      }));
+    } catch (error) {
+      console.error("Mass synthesis error:", error);
       // Fallback: Convert raw findings directly
       return this.fallbackSynthesis(rawFindings);
     }

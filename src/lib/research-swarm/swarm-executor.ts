@@ -124,25 +124,31 @@ export class SwarmExecutor {
       const prompt = this.buildAgentPrompt(agent, chain);
 
       // Execute LLM call with timeout
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Agent timeout")), agent.timeout * 1000)
       );
 
-      // TODO: Implement proper LLM call using llmRouter.complete()
-      // For MVP, using mock response
-      // const llmResponse = await this.llmRouter.complete(prompt, {
-      //   temperature: 0.7,
-      //   maxTokens: agent.depth === "deep" ? 2000 : 1000,
-      // });
-      const llmPromise = Promise.resolve(`[Agent ${agent.agentId}] Mock finding for: ${agent.role}`);
+      // Execute LLM call using llmRouter
+      const llmPromise = this.llmRouter.complete({
+        task: agent.role === "analyzer" ? "competitive_analysis" : "insight_generation",
+        prompt,
+        systemPrompt: "You are an expert research agent. Provide detailed, structured analysis.",
+        maxTokens: agent.depth === "deep" ? 2000 : 1000,
+        temperature: 0.7,
+      });
 
-      const result = await Promise.race([llmPromise, timeoutPromise]);
+      const llmResult = await Promise.race([llmPromise, timeoutPromise]);
+
+      // Check if LLM call was successful
+      if (!llmResult.success) {
+        throw new Error(llmResult.error?.message || "LLM call failed");
+      }
 
       return {
         agentId: agent.agentId,
         role: agent.role,
         success: true,
-        data: result,
+        data: llmResult.data.content,
         executionTimeMs: Date.now() - startTime,
       };
     } catch (error) {
