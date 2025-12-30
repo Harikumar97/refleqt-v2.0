@@ -80,18 +80,15 @@ function calculateUpdateFrequency(obsessionScore: number): {
   interval: number;
   maxItems: number;
 } {
-  const frequencies: Record<
-    string,
-    { interval: number; maxItems: number }
-  > = {
+  const frequencies: Record<string, { interval: number; maxItems: number }> = {
     low: { interval: 86400, maxItems: 5 }, // Daily, 5 items (score 1-3)
     medium: { interval: 3600, maxItems: 7 }, // Hourly, 7 items (score 4-6)
     high: { interval: 900, maxItems: 9 }, // 15 min, 9 items (score 7-8)
     extreme: { interval: 300, maxItems: 10 }, // 5 min, 10 items (score 9-10)
   };
 
-  if (obsessionScore >= 9) return frequencies["extreme"];
-  if (obsessionScore >= 7) return frequencies["high"];
-  if (obsessionScore >= 4) return frequencies["medium"];
-  return frequencies["low"];
+  if (obsessionScore >= 9) return frequencies["extreme"]!;
+  if (obsessionScore >= 7) return frequencies["high"]!;
+  if (obsessionScore >= 4) return frequencies["medium"]!;
+  return frequencies["low"]!;
 }

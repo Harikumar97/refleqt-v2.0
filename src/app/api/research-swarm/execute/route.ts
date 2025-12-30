@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       userId,
       obsessionScore,
       goals: researchGoals.map((g) => g.goalQuery),
-      industry: userProfile?.industry,
+      ...(userProfile?.industry && { industry: userProfile.industry }),
     };
 
     // Execute strategy cohort

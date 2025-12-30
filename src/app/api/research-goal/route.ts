@@ -24,10 +24,10 @@ export async function GET(request: NextRequest) {
         swarms: {
           select: {
             id: true,
-            executionStatus: true,
+            status: true,
             _count: {
               select: {
-                insights: true,
+                synthesizedData: true,
               },
             },
           },
@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
           createdAt: goal.createdAt.toISOString(),
           swarms: goal.swarms.map((s) => ({
             id: s.id,
-            executionStatus: s.executionStatus,
-            insightCount: s._count.insights,
+            executionStatus: s.status,
+            insightCount: s._count.synthesizedData,
           })),
           trackers: goal.trackers,
         })),

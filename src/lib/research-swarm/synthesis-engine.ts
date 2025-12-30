@@ -36,7 +36,10 @@ export class SynthesisEngine {
       const hierarchyNodes = this.buildKnowledgeHierarchy(rankedInsights);
 
       // Step 4: Assign display positions (1-10)
-      const finalInsights = this.assignDisplayPositions(rankedInsights, config.maxInsights);
+      const finalInsights = this.assignDisplayPositions(
+        rankedInsights,
+        config.maxInsights
+      );
 
       return {
         insights: finalInsights,
@@ -56,7 +59,9 @@ export class SynthesisEngine {
   /**
    * Mass synthesis: Combine raw findings using LLM
    */
-  private async massSynthesize(rawFindings: RawFinding[]): Promise<SynthesizedInsight[]> {
+  private async massSynthesize(
+    rawFindings: RawFinding[]
+  ): Promise<SynthesizedInsight[]> {
     if (rawFindings.length === 0) return [];
 
     // Combine findings into synthesis prompt
@@ -101,18 +106,22 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
       const llmResult = await this.llmRouter.complete({
         task: "insight_generation",
         prompt: synthesisPrompt,
-        systemPrompt: "You are an expert business intelligence analyst. Always respond with valid JSON arrays.",
+        systemPrompt:
+          "You are an expert business intelligence analyst. Always respond with valid JSON arrays.",
         maxTokens: 3000,
         temperature: 0.3, // Lower temperature for consistent synthesis
       });
 
       if (!llmResult.success) {
-        console.warn("LLM synthesis failed, using fallback:", llmResult.error?.message);
+        console.warn(
+          "LLM synthesis failed, using fallback:",
+          llmResult.error?.message
+        );
         return this.fallbackSynthesis(rawFindings);
       }
 
       // Parse JSON response from LLM
-      const parsed = this.parseJSONResponse(llmResult.data.content);
+      const parsed = this.parseJSONResponse(llmResult.value.content);
 
       // Convert to SynthesizedInsight format
       return parsed.map((item: any) => ({
@@ -122,9 +131,13 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
         priorityScore: this.clampScore(item.priorityScore),
         relevanceScore: this.clampScore(item.relevanceScore),
         isActionable: Boolean(item.isActionable),
-        actionItems: Array.isArray(item.actionItems) ? item.actionItems.slice(0, 5) : [],
+        actionItems: Array.isArray(item.actionItems)
+          ? item.actionItems.slice(0, 5)
+          : [],
         sourceFindingIds: rawFindings.map((f) => f.findingId),
-        psychographicTags: Array.isArray(item.psychographicTags) ? item.psychographicTags : [],
+        psychographicTags: Array.isArray(item.psychographicTags)
+          ? item.psychographicTags
+          : [],
         displayPosition: null,
       }));
     } catch (error) {
@@ -160,7 +173,9 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
     config: FiniteIntrospectConfig
   ): Promise<SynthesizedInsight[]> {
     // Filter by relevance threshold
-    let filtered = insights.filter((i) => i.relevanceScore >= config.relevanceThreshold);
+    let filtered = insights.filter(
+      (i) => i.relevanceScore >= config.relevanceThreshold
+    );
 
     // Sort by priority (actionable items first if prioritizeActionable is true)
     filtered.sort((a, b) => {
@@ -188,7 +203,9 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
     // Group by hierarchy level
     const strategic = insights.filter((i) => i.hierarchyLevel === "strategic");
     const tactical = insights.filter((i) => i.hierarchyLevel === "tactical");
-    const operational = insights.filter((i) => i.hierarchyLevel === "operational");
+    const operational = insights.filter(
+      (i) => i.hierarchyLevel === "operational"
+    );
 
     // Create strategic nodes (root level)
     if (strategic.length > 0) {
@@ -198,7 +215,9 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
         hierarchyLevel: "strategic",
         depth: 0,
         insightIds: strategic.map((_, i) => `insight-strategic-${i}`),
-        relevanceScore: this.averageScore(strategic.map((i) => i.relevanceScore)),
+        relevanceScore: this.averageScore(
+          strategic.map((i) => i.relevanceScore)
+        ),
         children: [],
       };
       hierarchy.push(strategicNode);
@@ -212,7 +231,9 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
         hierarchyLevel: "tactical",
         depth: 1,
         insightIds: tactical.map((_, i) => `insight-tactical-${i}`),
-        relevanceScore: this.averageScore(tactical.map((i) => i.relevanceScore)),
+        relevanceScore: this.averageScore(
+          tactical.map((i) => i.relevanceScore)
+        ),
         children: [],
       };
       hierarchy.push(tacticalNode);
@@ -226,7 +247,9 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
         hierarchyLevel: "operational",
         depth: 2,
         insightIds: operational.map((_, i) => `insight-operational-${i}`),
-        relevanceScore: this.averageScore(operational.map((i) => i.relevanceScore)),
+        relevanceScore: this.averageScore(
+          operational.map((i) => i.relevanceScore)
+        ),
         children: [],
       };
       hierarchy.push(operationalNode);
@@ -273,7 +296,11 @@ Provide 5-15 synthesized insights. Be concise but comprehensive.`;
   private validateHierarchyLevel(
     level: string
   ): "strategic" | "tactical" | "operational" {
-    if (level === "strategic" || level === "tactical" || level === "operational") {
+    if (
+      level === "strategic" ||
+      level === "tactical" ||
+      level === "operational"
+    ) {
       return level;
     }
     return "tactical"; // Default

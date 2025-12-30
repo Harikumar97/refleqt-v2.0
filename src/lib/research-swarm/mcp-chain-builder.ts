@@ -73,7 +73,9 @@ export class MCPChainBuilder {
     const goalType = this.inferGoalType(query);
 
     // Get base template
-    const template = this.CHAIN_TEMPLATES[goalType] || this.CHAIN_TEMPLATES["competitive_analysis"];
+    const template =
+      this.CHAIN_TEMPLATES[goalType] ||
+      this.CHAIN_TEMPLATES["competitive_analysis"]!;
 
     // Customize based on obsession score
     const swarmSize = userContext.obsessionScore >= 7 ? "large" : "small";
@@ -95,7 +97,10 @@ export class MCPChainBuilder {
   private static inferGoalType(query: string): string {
     const queryLower = query.toLowerCase();
 
-    if (queryLower.includes("competitor") || queryLower.includes("competition")) {
+    if (
+      queryLower.includes("competitor") ||
+      queryLower.includes("competition")
+    ) {
       return "competitive_analysis";
     }
 
@@ -103,7 +108,10 @@ export class MCPChainBuilder {
       return "market_trends";
     }
 
-    if (queryLower.includes("customer") || queryLower.includes("user feedback")) {
+    if (
+      queryLower.includes("customer") ||
+      queryLower.includes("user feedback")
+    ) {
       return "customer_intelligence";
     }
 
@@ -127,9 +135,15 @@ export class MCPChainBuilder {
       if (step.startsWith("fetch:")) {
         return { type: "fetch" as const, target: step.replace("fetch:", "") };
       } else if (step.startsWith("extract:")) {
-        return { type: "extract" as const, target: step.replace("extract:", "") };
+        return {
+          type: "extract" as const,
+          target: step.replace("extract:", ""),
+        };
       } else if (step.startsWith("synthesize:")) {
-        return { type: "synthesize" as const, target: step.replace("synthesize:", "") };
+        return {
+          type: "synthesize" as const,
+          target: step.replace("synthesize:", ""),
+        };
       } else {
         return { type: "format" as const, target: "finite_insights" };
       }

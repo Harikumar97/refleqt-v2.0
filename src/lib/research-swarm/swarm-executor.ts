@@ -6,7 +6,6 @@
 import type { LLMRouter } from "../llm/router/llm-router";
 import type {
   MCPChain,
-  MCPChainStep,
   SwarmAgentConfig,
   AgentResult,
   SwarmResult,
@@ -64,7 +63,7 @@ export class SwarmExecutor {
    * Generate agent configurations based on chain and config
    */
   private generateAgentConfigs(
-    chain: MCPChain,
+    _chain: MCPChain,
     config: { agents: number; timeout: number; depth: "shallow" | "deep" }
   ): SwarmAgentConfig[] {
     const agents: SwarmAgentConfig[] = [];
@@ -125,14 +124,21 @@ export class SwarmExecutor {
 
       // Execute LLM call with timeout
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Agent timeout")), agent.timeout * 1000)
+        setTimeout(
+          () => reject(new Error("Agent timeout")),
+          agent.timeout * 1000
+        )
       );
 
       // Execute LLM call using llmRouter
       const llmPromise = this.llmRouter.complete({
-        task: agent.role === "analyzer" ? "competitive_analysis" : "insight_generation",
+        task:
+          agent.role === "analyzer"
+            ? "competitive_analysis"
+            : "insight_generation",
         prompt,
-        systemPrompt: "You are an expert research agent. Provide detailed, structured analysis.",
+        systemPrompt:
+          "You are an expert research agent. Provide detailed, structured analysis.",
         maxTokens: agent.depth === "deep" ? 2000 : 1000,
         temperature: 0.7,
       });
@@ -148,7 +154,7 @@ export class SwarmExecutor {
         agentId: agent.agentId,
         role: agent.role,
         success: true,
-        data: llmResult.data.content,
+        data: llmResult.value.content,
         executionTimeMs: Date.now() - startTime,
       };
     } catch (error) {
@@ -218,7 +224,10 @@ Depth Level: ${agent.depth}`
         );
 
       default:
-        return baseContext + "Analyze the research goal and provide relevant insights.";
+        return (
+          baseContext +
+          "Analyze the research goal and provide relevant insights."
+        );
     }
   }
 
