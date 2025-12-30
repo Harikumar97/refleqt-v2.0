@@ -7,10 +7,10 @@ import prisma from "@/lib/db/prisma";
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { goalId: string } }
+  { params }: { params: Promise<{ goalId: string }> }
 ) {
   try {
-    const { goalId } = params;
+    const { goalId } = await params;
     const { userId } = await request.json();
 
     if (!userId) {

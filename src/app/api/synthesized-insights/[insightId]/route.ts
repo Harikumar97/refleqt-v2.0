@@ -7,10 +7,10 @@ import prisma from "@/lib/db/prisma";
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { insightId: string } }
+  { params }: { params: Promise<{ insightId: string }> }
 ) {
   try {
-    const { insightId } = params;
+    const { insightId } = await params;
     const { userId } = await request.json();
 
     if (!userId) {

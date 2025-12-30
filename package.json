@@ -20,6 +20,11 @@
     "validate": "node scripts/validate-dev-environment.js",
     "fix": "node scripts/auto-fix-common-issues.js",
     "dev:safe": "npm run fix && npm run validate && npm run dev",
+    "db:seed": "tsx scripts/seed-demo-data.ts",
+    "db:seed:api": "tsx scripts/seed-via-api.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
     "prepare": "husky"
   },
   "repository": {

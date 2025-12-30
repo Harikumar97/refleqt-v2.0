@@ -496,7 +496,10 @@ export default function PortalDashboard() {
                 <div className="feature-header">
                   <div className="feature-icon">🔬</div>
                   <div>
-                    <h3 className="feature-title">Research Swarms</h3>
+                    <h3 className="feature-title">
+                      Research Swarms
+                      <span className="feature-badge">LIVE</span>
+                    </h3>
                   </div>
                 </div>
                 <p className="feature-description">
@@ -506,7 +509,48 @@ export default function PortalDashboard() {
                 <div className="feature-meta">
                   <div className="feature-meta-item">
                     <span>🤖</span>
-                    <span>12 swarms</span>
+                    <span>AI-powered</span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/portal/smart-trackers" className="feature-card">
+                <div className="feature-header">
+                  <div className="feature-icon">📊</div>
+                  <div>
+                    <h3 className="feature-title">
+                      Smart Trackers
+                      <span className="feature-badge">LIVE</span>
+                    </h3>
+                  </div>
+                </div>
+                <p className="feature-description">
+                  Automated monitoring for research goals based on your
+                  Obsession Score.
+                </p>
+                <div className="feature-meta">
+                  <div className="feature-meta-item">
+                    <span>⚡</span>
+                    <span>Auto-monitor</span>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/portal/settings" className="feature-card">
+                <div className="feature-header">
+                  <div className="feature-icon">⚙️</div>
+                  <div>
+                    <h3 className="feature-title">Settings</h3>
+                  </div>
+                </div>
+                <p className="feature-description">
+                  Manage your profile, company info, and Obsession Score
+                  preferences.
+                </p>
+                <div className="feature-meta">
+                  <div className="feature-meta-item">
+                    <span>🎯</span>
+                    <span>Customize</span>
                   </div>
                 </div>
               </Link>
@@ -541,23 +585,23 @@ export default function PortalDashboard() {
             <div className="quick-actions">
               <h2 className="quick-actions-title">Quick Actions</h2>
               <div className="actions-grid">
-                <Link href="/portal/intelligence-feed" className="action-btn">
-                  📡 View Live Feed
+                <Link href="/portal/research-swarms" className="action-btn">
+                  🔬 Create Research Goal
                 </Link>
                 <Link
                   href="/portal/strategy-cohorts"
                   className="action-btn secondary"
                 >
-                  🎯 New Analysis
-                </Link>
-                <Link href="/portal/brewery" className="action-btn brewery">
-                  🍺 Start Brewing
+                  🎯 Quick Analysis
                 </Link>
                 <Link
-                  href="/portal/psychographics"
+                  href="/portal/smart-trackers"
                   className="action-btn secondary"
                 >
-                  🧠 Segment Analysis
+                  📊 View Trackers
+                </Link>
+                <Link href="/portal/settings" className="action-btn secondary">
+                  ⚙️ Settings
                 </Link>
               </div>
             </div>
