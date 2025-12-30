@@ -124,7 +124,9 @@ export function ConfigureResearchGoalDialog({
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           width: 100%;
           max-width: 600px;
+          max-height: 90vh;
           padding: 32px;
+          overflow-y: auto;
           animation: modalSlideIn 0.3s ease;
         }
 
@@ -497,7 +499,9 @@ export function ConfigureResearchGoalDialog({
                 className="form-input"
                 required
               />
-              <p className="form-hint">A short, descriptive name for this research goal</p>
+              <p className="form-hint">
+                A short, descriptive name for this research goal
+              </p>
             </div>
 
             {/* Goal Query */}
@@ -526,7 +530,8 @@ export function ConfigureResearchGoalDialog({
                     )
                   }
                 >
-                  • "How are competitors responding to sustainability regulations?"
+                  • "How are competitors responding to sustainability
+                  regulations?"
                 </div>
                 <div
                   className="example-query"
@@ -589,12 +594,14 @@ export function ConfigureResearchGoalDialog({
                   Enable Smart Tracker (Continuous Monitoring)
                 </label>
                 <p className="checkbox-description">
-                  Automatically run AI swarms on schedule to keep insights fresh. Updates based on your Obsession Score.
+                  Automatically run AI swarms on schedule to keep insights
+                  fresh. Updates based on your Obsession Score.
                 </p>
                 {enableTracking && (
                   <div className="monitoring-preview">
                     📊 Will update {monitoringPreview.interval} with max{" "}
-                    {monitoringPreview.maxItems} insights (Obsession Score: {obsessionScore}/10)
+                    {monitoringPreview.maxItems} insights (Obsession Score:{" "}
+                    {obsessionScore}/10)
                   </div>
                 )}
               </div>

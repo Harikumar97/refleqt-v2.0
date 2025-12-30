@@ -47,16 +47,26 @@ export default function ResearchSwarmsPage() {
     try {
       const response = await fetch(`/api/research-goal?userId=${userId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch research goals");
+        console.warn("Could not fetch research goals:", response.status);
+        setGoals([]);
+        setLoading(false);
+        return;
       }
 
       const data = await response.json();
       if (data.success) {
         setGoals(data.data.goals);
+      } else {
+        console.warn("Research goals API returned unsuccessful response");
+        setGoals([]);
       }
     } catch (err) {
-      console.error("Error fetching research goals:", err);
-      setError(err instanceof Error ? err.message : "Unknown error");
+      console.warn(
+        "Error fetching research goals (database may be empty):",
+        err
+      );
+      setGoals([]);
+      setError(null);
     } finally {
       setLoading(false);
     }
@@ -497,7 +507,8 @@ export default function ResearchSwarmsPage() {
                     <div className="monitoring-badge active">
                       <span>🔔</span>
                       <span>
-                        Smart Tracker: {getMonitoringFrequency(tracker.updateInterval)}
+                        Smart Tracker:{" "}
+                        {getMonitoringFrequency(tracker.updateInterval)}
                       </span>
                       <span>• Max {tracker.maxInsights} insights</span>
                     </div>

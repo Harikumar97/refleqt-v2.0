@@ -66,7 +66,8 @@ export default function StrategyCohortsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to execute strategy cohort");
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -89,6 +90,8 @@ export default function StrategyCohortsPage() {
           executionTimeMs: executionTime,
           confidenceScore: avgRelevance,
         });
+      } else {
+        throw new Error(data.error || "Execution failed");
       }
     } catch (err) {
       console.error("Error executing strategy cohort:", err);
