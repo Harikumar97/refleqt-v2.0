@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get("userId");
-    const swarmId = searchParams.get("swarmId");
 
     if (!userId) {
       return NextResponse.json(
@@ -19,15 +18,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build query filter
-    const where: any = { userId };
-    if (swarmId) {
-      where.swarmId = swarmId;
-    }
-
     // Fetch knowledge nodes
     const nodes = await prisma.knowledgeNode.findMany({
-      where,
+      where: { userId },
       orderBy: [
         { depth: "asc" }, // Strategic (0) → Tactical (1) → Operational (2)
         { relevanceScore: "desc" },
@@ -35,17 +28,16 @@ export async function GET(request: NextRequest) {
     });
 
     // Convert Prisma Decimal to number for JSON serialization
-    const serializedNodes = nodes.map((node: any) => ({
+    const serializedNodes = nodes.map((node) => ({
       id: node.id,
-      swarmId: node.swarmId,
       userId: node.userId,
+      parentNodeId: node.parentId,
       nodeTitle: node.nodeTitle,
-      nodeContent: node.nodeContent,
+      nodeContent: node.nodeContent || "",
       hierarchyLevel: node.hierarchyLevel,
       depth: node.depth,
       insightIds: node.insightIds,
       relevanceScore: Number(node.relevanceScore),
-      parentNodeId: node.parentNodeId,
       createdAt: node.createdAt.toISOString(),
     }));
 
