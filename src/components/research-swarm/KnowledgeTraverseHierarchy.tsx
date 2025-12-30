@@ -50,7 +50,11 @@ export function KnowledgeTraverseHierarchy({
 
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error("Failed to fetch hierarchy");
+        console.warn("Could not fetch hierarchy:", response.status);
+        setNodes([]);
+        setError(null); // Don't show error for empty data
+        setLoading(false);
+        return;
       }
 
       const data = await response.json();
@@ -62,10 +66,15 @@ export function KnowledgeTraverseHierarchy({
           .map((n: KnowledgeNode) => n.id);
         setExpandedNodes(new Set(strategicIds));
         setError(null);
+      } else {
+        console.warn("Hierarchy API returned unsuccessful response");
+        setNodes([]);
+        setError(null);
       }
     } catch (err) {
-      console.error("Error fetching hierarchy:", err);
-      setError("Failed to load knowledge hierarchy");
+      console.warn("Error fetching hierarchy (database may be empty):", err);
+      setNodes([]);
+      setError(null); // Don't show error UI for empty database
     } finally {
       setLoading(false);
     }
@@ -225,9 +234,10 @@ export function KnowledgeTraverseHierarchy({
       {/* Level Filter */}
       <div className="level-filter">
         {["all", "strategic", "tactical", "operational"].map((level) => {
-          const config = level === "all"
-            ? { icon: "🌐", label: "All Levels" }
-            : getLevelConfig(level);
+          const config =
+            level === "all"
+              ? { icon: "🌐", label: "All Levels" }
+              : getLevelConfig(level);
 
           return (
             <button

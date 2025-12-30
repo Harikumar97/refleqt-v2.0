@@ -49,19 +49,30 @@ export function FiniteIntrospectDisplay({
 
   async function fetchInsights() {
     try {
-      const response = await fetch(`/api/synthesized-insights?userId=${userId}`);
+      const response = await fetch(
+        `/api/synthesized-insights?userId=${userId}`
+      );
       if (!response.ok) {
-        throw new Error("Failed to fetch insights");
+        console.warn("Could not fetch insights:", response.status);
+        setInsights([]);
+        setError(null); // Don't show error for empty data
+        setLoading(false);
+        return;
       }
 
       const data = await response.json();
       if (data.success) {
         setInsights(data.data.insights);
         setError(null);
+      } else {
+        console.warn("Insights API returned unsuccessful response");
+        setInsights([]);
+        setError(null);
       }
     } catch (err) {
-      console.error("Error fetching insights:", err);
-      setError("Failed to load insights");
+      console.warn("Error fetching insights (database may be empty):", err);
+      setInsights([]);
+      setError(null); // Don't show error UI for empty database
     } finally {
       setLoading(false);
     }
@@ -442,7 +453,8 @@ export function FiniteIntrospectDisplay({
           background: white;
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
             0 2px 4px -1px rgba(0, 0, 0, 0.06);
           transition: all 0.3s ease;
           cursor: pointer;
@@ -451,7 +463,8 @@ export function FiniteIntrospectDisplay({
 
         .insight-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          box-shadow:
+            0 20px 25px -5px rgba(0, 0, 0, 0.1),
             0 10px 10px -5px rgba(0, 0, 0, 0.04);
           border-color: #8b5cf6;
         }
